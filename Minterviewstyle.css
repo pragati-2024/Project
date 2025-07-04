@@ -55,8 +55,9 @@ html,body{
     flex-direction: column;
 }
 .main p{
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 400;
+    
 }
 .holder{
     display: flex;
@@ -65,7 +66,7 @@ html,body{
     width: 499px;
     height: 90px;
     background-color: #032538;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
     border-radius: 8px;
 }
 .pholder{
@@ -74,14 +75,19 @@ html,body{
     width:300px;
     border-top-left-radius: 8px;
     border-bottom-left-radius: 8px;
-    border: none;
+    border: 1px solid #2ED1A5;
+    border-right: none;   
+    outline: none; 
+ 
 }
 .btn{
     height: 50px;
-    width: 198px;
+    width: 200px;
     text-align: center;
     background-color: #2ED1A5;
-    border: none;
+    border: 1px solid #2ED1A5; 
+    outline: none;
+    border-left: none;
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
 }
@@ -101,5 +107,17 @@ html,body{
 .text2 p{
     color: #ffffffc9;
 }
+.image {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+}
+
+
 
 
