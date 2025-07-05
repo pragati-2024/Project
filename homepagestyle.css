@@ -1,0 +1,150 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Lexend', sans-serif;
+}
+body {
+  background-color: #f9f9ff;
+  color: #1e293b;
+  padding: 40px;
+}
+.hero {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.hero .brand {
+  color: #4f46e5;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  margin-top: 15px;
+  color: #475569;
+}
+
+.hero-buttons {
+  margin-top: 30px;
+}
+
+.hero-buttons .btn-primary,
+.hero-buttons .btn-secondary {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  margin: 10px;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+}
+.btn-primary {
+  background-color: #4f46e5;
+  color: white;
+}
+.btn-secondary {
+  background-color: #10b981;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #4338ca;
+}
+
+.btn-secondary:hover {
+  background-color: #059669;
+}
+
+/* Features Section */
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.feature-box {
+  background-color: white;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  padding: 25px;
+  width: 300px;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.feature-box i {
+  font-size: 2rem;
+  color: #10b981;
+  margin-bottom: 10px;
+}
+
+.feature-box h3 {
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+  color: #1e293b;
+}
+
+.feature-box p {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+.how-it-works {
+  text-align: center;
+  margin-top: 60px;
+  padding: 40px 20px;
+  background-color: #eef2ff;
+  border-radius: 12px;
+}
+
+.how-it-works h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #4f46e5;
+}
+
+.how-it-works ol {
+  text-align: left;
+  max-width: 600px;
+  margin: auto;
+  font-size: 1.1rem;
+  color: #475569;
+  line-height: 1.8;
+}
+.final-cta {
+  background-color: #d1fae5;
+  text-align: center;
+  padding: 50px;
+  margin-top: 60px;
+  border-radius: 16px;
+}
+
+.final-cta h2 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.final-cta p {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  color: #334155;
+}
+
+.final-cta button {
+  background-color: #1e293b;
+  color: white;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.final-cta button:hover {
+  background-color: #0f172a;
+}
