@@ -4,29 +4,35 @@
   box-sizing: border-box;
   font-family: 'Lexend', sans-serif;
 }
+
 body {
-  background-color: #f9f9ff;
-  color: #1e293b;
+  background-color: #f6f9fc;
+  color: #1f2937;
   padding: 40px;
 }
+
 .hero {
   text-align: center;
   margin-bottom: 60px;
+  background: linear-gradient(to right, #fdfcfb, #e2d1c3);
+  padding: 60px 20px;
+  border-radius: 20px;
 }
 
 .hero h1 {
   font-size: 3rem;
   font-weight: 700;
+  color: #1f2937;
 }
 
-.hero .brand {
-  color: #4f46e5;
+.brand {
+  color: #7c3aed;
 }
 
 .hero p {
   font-size: 1.2rem;
   margin-top: 15px;
-  color: #475569;
+  color: #374151;
 }
 
 .hero-buttons {
@@ -43,24 +49,25 @@ body {
   cursor: pointer;
   transition: 0.3s ease-in-out;
 }
+
 .btn-primary {
-  background-color: #4f46e5;
-  color: white;
-}
-.btn-secondary {
-  background-color: #10b981;
+  background-color: #7c3aed;
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #4338ca;
+  background-color: #6d28d9;
+}
+
+.btn-secondary {
+  background-color: #14b8a6;
+  color: white;
 }
 
 .btn-secondary:hover {
-  background-color: #059669;
+  background-color: #0d9488;
 }
 
-/* Features Section */
 .features {
   display: flex;
   flex-wrap: wrap;
@@ -71,57 +78,70 @@ body {
 
 .feature-box {
   background-color: white;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
   padding: 25px;
   width: 300px;
   border-radius: 16px;
   text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.feature-box:hover {
+  transform: translateY(-6px);
 }
 
 .feature-box i {
   font-size: 2rem;
-  color: #10b981;
+  color: #14b8a6;
   margin-bottom: 10px;
 }
 
 .feature-box h3 {
   font-size: 1.25rem;
   margin-bottom: 8px;
-  color: #1e293b;
+  color: #1f2937;
 }
 
 .feature-box p {
-  color: #64748b;
+  color: #6b7280;
   font-size: 0.95rem;
 }
+
 .how-it-works {
   text-align: center;
   margin-top: 60px;
   padding: 40px 20px;
   background-color: #eef2ff;
   border-radius: 12px;
+  font-family: 'Inter', sans-serif;
 }
 
 .how-it-works h2 {
   font-size: 2rem;
   margin-bottom: 20px;
   color: #4f46e5;
+  font-weight: 700;
+  font-family: 'Ubuntu', sans-serif;
 }
 
 .how-it-works ol {
   text-align: left;
   max-width: 600px;
   margin: auto;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: #475569;
   line-height: 1.8;
+  font-weight: 400;
+  font-family: 'Inter', sans-serif;
 }
+
 .final-cta {
-  background-color: #d1fae5;
+  background: linear-gradient(135deg, #7c3aed 0%, #14b8a6 100%);
   text-align: center;
   padding: 50px;
   margin-top: 60px;
   border-radius: 16px;
+  color: white;
 }
 
 .final-cta h2 {
@@ -131,20 +151,30 @@ body {
 
 .final-cta p {
   font-size: 1.1rem;
-  margin-bottom: 20px;
-  color: #334155;
+  margin-bottom: 25px;
 }
 
-.final-cta button {
-  background-color: #1e293b;
-  color: white;
+.cta-btn {
+  background-color: white;
+  color: #7c3aed;
   padding: 14px 28px;
   border: none;
   border-radius: 12px;
   font-size: 1rem;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  font-weight: 600;
+  transition: background 0.3s ease;
 }
 
-.final-cta button:hover {
-  background-color: #0f172a;
+.cta-btn:hover {
+  background-color: #f3e8ff;
+}
+
+.btn-icon {
+  height: 22px;
+  width: 22px;
 }
