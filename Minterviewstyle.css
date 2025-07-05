@@ -110,12 +110,14 @@ html,body{
 .image {
     text-align: center;
     margin-top: 40px;
+    width: 100%;
 }
 
 .image img {
-    max-width: 100%;
-    height: auto;
+    width: 90%;
+    height: 60%;
     border-radius: 12px;
+    object-fit: cover;;
 }
 
 
