@@ -1,129 +1,130 @@
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-h1{
-    font-size: 40px;
-    font-family: "Inter", sans-serif;
-}
-html,body{
-    width: 100%;
+html, body {
     height: 100%;
-    background-color: #032538;
-}
-.header{
-    display: flex;
-    align-items: center;
     width: 100%;
-    height: 90px;
-    background-color: white;
+    font-family: 'Inter', sans-serif;
+    background: #0e1c2f;
+    color: #e3eaf4;
 }
-.logo{
+
+.header {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    width: 20%;
-    height: 90px;
-    background-color: #032538;
+    background-color: #0b1623;
+    height: 80px;
+    padding: 0 40px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
+
+.logo h1 {
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    color: #c1d3ff;
+    text-shadow: 0 0 8px #4f46e5;
+}
+
 .links {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 80%;
-    height: 90px;
-    background-color: #032538;
-    gap: 60px;
-
+    gap: 30px;
 }
-.links a{
+.links a {
     text-decoration: none;
-    color: #ffffff9b;
+    color: #9db2cf;
+    font-weight: 500;
+    transition: 0.3s;
 }
-.ftrial{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 70px;
-    height: 50px;
-    background-color: #24c49a;  
-    border-radius: 11px;
+.links a:hover {
+    color: #4f9aff;
 }
-.main{
-    background-color: #032538;
-    width: 100%;
-    height:600px;
-    align-items: center;
+
+.ftrial a {
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #00e3ae, #00bfa6);
+    color: #0e1c2f;
+    font-weight: 600;
+    box-shadow: 0 0 15px #00e3ae77;
+    transition: 0.3s;
+}
+.ftrial a:hover {
+    background: linear-gradient(145deg, #00cda0, #00a88f);
+    box-shadow: 0 0 20px #00e3aeaa;
+}
+
+.main {
     display: flex;
     flex-direction: column;
-}
-.main p{
-    font-size: 20px;
-    font-weight: 400;
-    
-}
-.holder{
-    display: flex;
-    justify-content: center;
     align-items: center;
-    width: 499px;
-    height: 90px;
-    background-color: #032538;
-    margin-top: 1.5rem;
-    border-radius: 8px;
-}
-.pholder{
     text-align: center;
-    height: 50px;
-    width:300px;
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-    border: 1px solid #2ED1A5;
-    border-right: none;   
-    outline: none; 
- 
+    padding: 60px 20px;
+    background-color: #0e1c2f;
 }
-.btn{
+
+.maintext h1 {
+    font-size: 42px;
+    font-weight: 700;
+    color: #c084fc;
+    line-height: 1.4;
+    text-shadow: 0 0 12px #c084fc55;
+}
+
+.text2 p {
+    font-size: 18px;
+    color: #bdc5d1;
+    margin-top: 16px;
+}
+
+.holder {
+    display: flex;
+    margin-top: 30px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #00d6a3;
+}
+
+.pholder {
+    width: 280px;
     height: 50px;
-    width: 200px;
-    text-align: center;
-    background-color: #2ED1A5;
-    border: 1px solid #2ED1A5; 
+    padding: 0 15px;
+    border: none;
     outline: none;
-    border-left: none;
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
+    background-color: #101d30;
+    color: white;
+    font-size: 16px;
 }
-.maintext{
-    width: 500px;
-    height: 140px;
-    background-color: #032538;
-    padding: 50px;
-    color: #FFFFFF;
-}
-.text2{
-    width: 500px;
+
+.btn {
+    width: 160px;
     height: 50px;
-    background-color: #032538;
-    padding: 14px;
+    background-color: #00d6a3;
+    color: #0b1d25;
+    font-weight: bold;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s ease;
 }
-.text2 p{
-    color: #ffffffc9;
+.btn:hover {
+    background-color: #00b68d;
 }
+
 .image {
-    text-align: center;
-    margin-top: 40px;
-    width: 100%;
+    margin-top: 50px;
+    width: 90%;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 0 20px #c084fc33;
 }
 
 .image img {
-    width: 90%;
-    height: 60%;
-    border-radius: 12px;
-    object-fit: cover;;
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    object-fit: cover;
 }
-
-
-
-
