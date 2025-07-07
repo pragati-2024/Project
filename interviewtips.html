@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Tips</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0a192f;
+            color: #e6f1ff;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Navigation */
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(10, 25, 47, 0.9);
+            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+        }
+
+        .header-nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #64ffda;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .logo span {
+            color: #9d7aff;
+        }
+
+        .home-btn {
+            background: linear-gradient(90deg, #9d7aff 0%, #7f5af0 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        .home-btn:hover {
+            background: linear-gradient(90deg, #7f5af0 0%, #6a4bdb 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(157, 122, 255, 0.4);
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, #0a192f 0%, #112240 100%);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid #1e2a47;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSg0NSkiPjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSg5NiwxMDAsMTQ5LDAuMDUpIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCBmaWxsPSJ1cmwoI3BhdHRlcm4pIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PC9zdmc+');
+            opacity: 0.3;
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            position: relative;
+            animation: fadeInDown 1s ease-out;
+            background: linear-gradient(90deg, #9d7aff 0%, #64ffda 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        header p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            position: relative;
+            animation: fadeInUp 1s ease-out 0.3s both;
+            color: #ccd6f6;
+        }
+
+        .search-bar {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 16px 25px;
+            border-radius: 50px;
+            border: 1px solid #1e2a47;
+            font-size: 1rem;
+            background: #112240;
+            color: #e6f1ff;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #64ffda;
+            box-shadow: 0 5px 25px rgba(100, 255, 218, 0.2);
+        }
+
+        .search-bar input::placeholder {
+            color: #495670;
+        }
+
+        .search-bar button {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            background: linear-gradient(90deg, #9d7aff 0%, #7f5af0 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 11px 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .search-bar button:hover {
+            background: linear-gradient(90deg, #7f5af0 0%, #6a4bdb 100%);
+            transform: translateY(-2px);
+        }
+
+        /* Categories Section */
+        .categories {
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+
+        .categories h2 {
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: #ccd6f6;
+            position: relative;
+            display: inline-block;
+        }
+
+        .categories h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #9d7aff 0%, #64ffda 100%);
+        }
+
+        .category-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .category-tag {
+            background: #112240;
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid #1e2a47;
+            font-weight: 500;
+        }
+
+        .category-tag:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(157, 122, 255, 0.3);
+        }
+
+        .category-tag.active {
+            background: linear-gradient(90deg, #9d7aff 0%, #7f5af0 100%);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(157, 122, 255, 0.4);
+            border-color: transparent;
+        }
+
+        /* Blog Cards Section */
+        .blog-section {
+            padding: 40px 0 80px;
+        }
+
+        .blog-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: #ccd6f6;
+            text-align: center;
+            position: relative;
+        }
+
+        .blog-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #9d7aff 0%, #64ffda 100%);
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .blog-card {
+            background: #112240;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            transform: translateY(30px) rotateX(15deg);
+            animation: cardAppear 0.8s ease-out forwards;
+            border: 1px solid #1e2a47;
+            perspective: 1000px;
+        }
+
+        .blog-card:nth-child(1) { animation-delay: 0.2s; }
+        .blog-card:nth-child(2) { animation-delay: 0.4s; }
+        .blog-card:nth-child(3) { animation-delay: 0.6s; }
+        .blog-card:nth-child(4) { animation-delay: 0.8s; }
+        .blog-card:nth-child(5) { animation-delay: 1.0s; }
+        .blog-card:nth-child(6) { animation-delay: 1.2s; }
+        .blog-card:nth-child(7) { animation-delay: 1.4s; }
+        .blog-card:nth-child(8) { animation-delay: 1.6s; }
+
+        .blog-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 20px 40px rgba(157, 122, 255, 0.3);
+            border-color: #64ffda;
+        }
+
+        .blog-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: all 0.5s;
+        }
+
+        .blog-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .blog-content {
+            padding: 25px;
+        }
+
+        .blog-category {
+            display: inline-block;
+            background: rgba(157, 122, 255, 0.1);
+            color: #9d7aff;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(157, 122, 255, 0.3);
+        }
+
+        .blog-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ccd6f6;
+            transition: all 0.3s;
+        }
+
+        .blog-card:hover .blog-title {
+            color: #64ffda;
+        }
+
+        .blog-excerpt {
+            color: #8892b0;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .read-more {
+            display: inline-flex;
+            align-items: center;
+            color: #64ffda;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .read-more::after {
+            content: '→';
+            margin-left: 8px;
+            transition: all 0.3s;
+        }
+
+        .read-more:hover {
+            color: #9d7aff;
+        }
+
+        .read-more:hover::after {
+            transform: translateX(5px);
+        }
+
+        /* Stats Section */
+        .stats {
+            background: linear-gradient(135deg, #112240 0%, #0a192f 100%);
+            padding: 80px 0;
+            text-align: center;
+            border-top: 1px solid #1e2a47;
+            border-bottom: 1px solid #1e2a47;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            padding: 30px;
+            min-width: 200px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .stat-item:nth-child(1) { animation-delay: 0.2s; }
+        .stat-item:nth-child(2) { animation-delay: 0.4s; }
+        .stat-item:nth-child(3) { animation-delay: 0.6s; }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #9d7aff 0%, #64ffda 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #8892b0;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            padding: 60px 0 30px;
+            border-top: 1px solid rgba(167, 139, 250, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #a78bfa, transparent);
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+        
+        .footer-section {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .footer-section:nth-child(1) { animation-delay: 0.1s; }
+        .footer-section:nth-child(2) { animation-delay: 0.2s; }
+        .footer-section:nth-child(3) { animation-delay: 0.3s; }
+        .footer-section:nth-child(4) { animation-delay: 0.4s; }
+        
+        .footer-section h3 {
+            color: #a78bfa;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background: #a78bfa;
+            border-radius: 2px;
+        }
+        
+        .footer-section p {
+            color: #9ca3af;
+            margin-bottom: 15px;
+            line-height: 1.7;
+            font-weight: 300;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: #9ca3af;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            position: relative;
+            font-weight: 300;
+        }
+        
+        .footer-links a::before {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #a78bfa;
+            transition: width 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #a78bfa;
+            transform: translateX(5px);
+        }
+        
+        .footer-links a:hover::before {
+            width: 100%;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            color: #9ca3af;
+            font-size: 20px;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(167, 139, 250, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .social-links a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(167, 139, 250, 0.3), transparent);
+            transition: 0.5s;
+        }
+        
+        .social-links a:hover {
+            color: #a78bfa;
+            background: rgba(167, 139, 250, 0.2);
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 5px 15px rgba(167, 139, 250, 0.3);
+        }
+        
+        .social-links a:hover::before {
+            left: 100%;
+        }
+        
+        .newsletter-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .newsletter-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 8px;
+            background: rgba(167, 139, 250, 0.05);
+            color: #f3f4f6;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .newsletter-input:focus {
+            outline: none;
+            border-color: #a78bfa;
+            box-shadow: 0 0 10px rgba(167, 139, 250, 0.2);
+        }
+        
+        .newsletter-btn {
+            padding: 12px 20px;
+            background: #a78bfa;
+            color: #0f0f0f;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .newsletter-btn:hover {
+            background: #c084fc;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(167, 139, 250, 0.3);
+        }
+        
+        .footer-bottom {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(167, 139, 250, 0.2);
+            text-align: center;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        
+        .footer-bottom-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #a78bfa;
+            text-shadow: 0 0 10px rgba(167, 139, 250, 0.3);
+        }
+        
+        .footer-bottom-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-bottom-links a {
+            color: #9ca3af;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-bottom-links a:hover {
+            color: #a78bfa;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        
+        .contact-item i {
+            color: #a78bfa;
+            width: 16px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px) rotateX(15deg);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            header p {
+                font-size: 1.1rem;
+            }
+
+            .blog-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-item {
+                min-width: 150px;
+                padding: 20px;
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .footer-bottom-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .newsletter-form {
+                flex-direction: column;
+            }
+            
+            .social-links {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <nav class="header-nav">
+        <div class="container">
+            <a href="#" class="logo">Mock<span>neto</span></a>
+            <a href="Minterview.html" class="home-btn">Back to Home</a>
+        </div>
+    </nav>
+
+    <!-- Main Header -->
+    <header>
+        <div class="container">
+            <h1>Interview Mastery Unleashed</h1>
+            <p>Transform from nervous candidate to confident professional with these battle-tested strategies that make interviewers say "Wow!"</p>
+            <div class="search-bar">
+                <input type="text" placeholder="Search for killer interview tactics...">
+                <button>Find Secrets</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="categories">
+        <div class="container">
+            <h2>Dominate Every Interview Dimension</h2>
+            <div class="category-tags">
+                <div class="category-tag active">All Superpowers</div>
+                <div class="category-tag">Communication</div>
+                <div class="category-tag">Leadership</div>
+                <div class="category-tag">Problem Solving</div>
+                <div class="category-tag">Storytelling</div>
+                <div class="category-tag">Technical</div>
+                <div class="category-tag">Body Language</div>
+                <div class="category-tag">Negotiation</div>
+                <div class="category-tag">Creativity</div>
+                <div class="category-tag">Stress Management</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="blog-section">
+        <div class="container">
+            <h2>Interview Ninja Tactics</h2>
+            <div class="blog-grid">
+                <div class="blog-card">
+                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Communication Skills">
+                    <div class="blog-content">
+                        <span class="blog-category">Communication</span>
+                        <h3 class="blog-title">The 3-Second Rule That Makes You Unforgettable</h3>
+                        <p class="blog-excerpt">Discover the neuroscience-backed technique that makes interviewers hang on your every word (most candidates never do this).</p>
+                        <a href="error 404.html" class="read-more">Steal This Technique</a>
+                    </div>
+                </div>
+
+                <div class="blog-card">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Leadership Skills">
+                    <div class="blog-content">
+                        <span class="blog-category">Leadership</span>
+                        <h3 class="blog-title">Fake It Till You Make It? Better Strategy Inside</h3>
+                        <p class="blog-excerpt">How to demonstrate leadership when you've never managed a team (this works even for entry-level candidates).</p>
+                        <a href="error 404.html" class="read-more">Leadership Hacks</a>
+                    </div>
+                </div>
+
+                <div class="blog-card">
+                    <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Problem Solving">
+                    <div class="blog-content">
+                        <span class="blog-category">Problem Solving</span>
+                        <h3 class="blog-title">The Consultant's Secret Framework</h3>
+                        <p class="blog-excerpt">McKinsey consultants use this exact method to crush case interviews - adapted for any problem-solving question.</p>
+                        <a href="error 404.html" class="read-more">Learn the Framework</a>
+                    </div>
+                </div>
+
+                <div class="blog-card">
+                    <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Storytelling">
+                    <div class="blog-content">
+                        <span class="blog-category">Storytelling</span>
+                        <h3 class="blog-title">Hollywood's Formula for Answering "Tell Me About Yourself"</h3>
+                        <p class="blog-excerpt">Screenwriters use this story structure to captivate audiences - perfect it for your interview opener.</p>
+                        <a href="error 404.html" class="read-more">Storytelling Magic</a>
+                    </div>
+                </div>
+
+                <div class="blog-card">
+                    <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Technical Interviews">
+                    <div class="blog-content">
+                        <span class="blog-category">Technical</span>
+                        <h3 class="blog-title">Whiteboard Interviews: How to Fail Gracefully</h3>
+                        <p class="blog-excerpt">What to do when you're completely stuck (this saved my Google interview when I blanked on binary trees).</p>
+                        <a href="error 404.html" class="read-more">Damage Control</a>
+                    </div>
+                </div>
+
+                <div class="blog-card">
+                    <img src="https://images.unsplash.com/photo-1541178735493-479c1a27ed24?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Body Language">
+                    <div class="blog-content">
+                        <span class="blog-category">Body Language</span>
+                        <h3 class="blog-title">The Power Pose Myth: What Actually Works</h3>
+                        <p class="blog-excerpt">Forget what you've heard - these 3 subtle movements make you appear 10x more confident instantly.</p>
+                        <a href="error 404.html" class="read-more">Body Language Hacks</a>
+                    </div>
+                </div>
+
+                <div class="blog-card">
+                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Negotiation">
+                    <div class="blog-content">
+                        <span class="blog-category">Negotiation</span>
+                        <h3 class="blog-title">Salary Negotiation: The Magic Number Trick</h3>
+                        <p class="blog-excerpt">How to name your price without pricing yourself out (this one phrase increased my offer by 22%).</p>
+                        <a href="error 404.html" class="read-more">Get Paid</a>
+                    </div>
+                </div>
+
+                <div class="blog-card">
+                    <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Creativity">
+                    <div class="blog-content">
+                        <span class="blog-category">Creativity</span>
+                        <h3 class="blog-title">"Show Me Your Creativity" Questions Decoded</h3>
+                        <p class="blog-excerpt">What they're really asking and how to respond with examples that dazzle (even if you're not "creative").</p>
+                        <a href="error 404.html" class="read-more">Creative Solutions</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="container">
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div class="stat-number">97%</div>
+                    <div class="stat-label">More Confidence</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">3.5x</div>
+                    <div class="stat-label">More Callbacks</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">42%</div>
+                    <div class="stat-label">Higher Offers</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Company Info -->
+            <div class="footer-section">
+                <h3>Mockneto</h3>
+                <p>Your personal AI coach to master real-world interviews with confidence. Transform your interview skills with our cutting-edge AI technology.</p>
+                <div class="social-links">
+                    <a href="error 404.html" target="_blank"><i class="fab fa-twitter"></i></a>
+                    <a href="error 404.html" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="error 404.html" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="error 404.html" target="_blank"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="homepage.html">Home</a></li>
+                    <li><a href="Minterview.html">Practice Interview</a></li>
+                    <li><a href="interviewtips.html">Interview Tips</a></li>
+                    <li><a href="error 404.html">Mock Assignment</a></li>
+                    <li><a href="Aboutus.html">About Us</a></li>
+                    <li><a href="contactus.html">Contact</a></li>
+                </ul>
+            </div>
+            
+            <!-- Features -->
+            <div class="footer-section">
+                <h3>Features</h3>
+                <ul class="footer-links">
+                    <li><a href="error 404.html">Real-Time Voice Practice</a></li>
+                    <li><a href="error 404.html">Smart Evaluation Engine</a></li>
+                    <li><a href="error 404.html">Progress Dashboard</a></li>
+                    <li><a href="error 404.html">Goal-Based Practice</a></li>
+                    <li><a href="error 404.html">AI Notes & Feedback</a></li>
+                    <li><a href="error 404.html">Domain Customization</a></li>
+                </ul>
+            </div>
+            
+            <!-- Newsletter & Contact -->
+            <div class="footer-section">
+                <h3>Stay Updated</h3>
+                <p>Subscribe to our newsletter for the latest interview tips and AI updates.</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Enter your email" class="newsletter-input" required>
+                    <button type="submit" class="newsletter-btn">Subscribe</button>
+                </form>
+                
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>support@mockneto.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>+1 (555) 123-4567</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Tech Hub, Innovation District</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <div class="footer-logo">Mockneto</div>
+                <div class="footer-bottom-links">
+                    <a href="error 404.html">Privacy Policy</a>
+                    <a href="error 404.html">Terms of Service</a>
+                    <a href="error 404.html">Cookie Policy</a>
+                    <a href="error 404.html">GDPR</a>
+                </div>
+                <div class="copyright">
+                    © 2025 Mockneto. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
