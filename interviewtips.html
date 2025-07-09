@@ -15,7 +15,12 @@
         }
 
         body {
-            background-color: #0a192f;
+              background: radial-gradient(
+    ellipse at center,
+    rgb(44, 27, 78) 0%,
+    #110b23 60%,
+    #0a061b 100%
+  );
             color: #e6f1ff;
             line-height: 1.6;
         }
@@ -26,27 +31,82 @@
             padding: 20px;
         }
 
-        /* Header Navigation */
-        .header-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background: rgba(10, 25, 47, 0.9);
-            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
-        }
+        .bg-glow {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  top: 50%;
+  left: 60%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(123, 97, 255, 0.3), transparent 70%);
+  filter: blur(100px);
+  z-index: 0;
+  pointer-events: none;
+}
 
-        .header-nav .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 30px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border-radius: 0 0 12px 12px;
+  z-index: 999;
+  box-sizing: border-box;
+}
+
+.logo h1 {
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #ffffff;
+    margin: 0;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: nowrap;
+}
+
+.links {
+  display: flex;
+  gap: 25px;
+  align-items: center;
+}
+
+.links a {
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.links a:hover {
+  color: #b78be6;
+}
+
+.ftrial a {
+  padding: 8px 18px;
+  border-radius: 10px;
+  /* background: linear-gradient(145deg, #00e3ae, #00bfa6); */
+  background: linear-gradient(to right, #6648de, #6a7ae7);
+  color: #ffffff;
+  font-weight: 600;
+  /* box-shadow: 0 0 15px #00e3ae77; */
+  transition: 0.3s;
+  text-decoration: none;
+}
 
         .logo {
             font-size: 1.8rem;
@@ -734,13 +794,24 @@
     </style>
 </head>
 <body>
-    <!-- Header Navigation -->
-    <nav class="header-nav">
-        <div class="container">
-            <a href="#" class="logo">Mock<span>neto</span></a>
-            <a href="Minterview.html" class="home-btn">Back to Home</a>
+    <div class="bg-glow"></div>
+        <div class="header">
+        <div class="logo">
+             <h1>Mockneto</h1>
         </div>
-    </nav>
+    <div class="nav-right">
+    <div class="links">
+      <a href="homepage.html">Home</a>
+      <a href="#">Practice Interview</a>
+      <a href="interviewtips.html">Interview Tips</a>
+      <a href="#">Contact Us</a>
+      <a href="Aboutus.html">About Us</a>
+    </div>
+    <div class="ftrial">
+      <a href="login.html">Login</a>
+    </div>
+  </div>
+</div>
 
     <!-- Main Header -->
     <header>
