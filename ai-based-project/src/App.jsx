@@ -17,7 +17,7 @@ import Navbar from './Navbar/Page';
 const App = () => {
   return (
     <div>
-      <Navbar />
+      
     </div>
   )
 }
