@@ -6,21 +6,36 @@ import Footer from "./components/Footer.jsx";
 import Login from './components/Login.jsx';
 import ContactUs from './components/ContactUs.jsx';
 import Eror404 from './components/Eror404.jsx'; 
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+
 
 import "./App.css";
 
 function App() {
-  return (
-    <div>
-      <Header />
-      <Home />
-      <Footer />
-      <InterviewTips />
-      <Login />
-      <ContactUs />
-      <Eror404 />
-    </div>
-  );
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <><Header/><Home/><Footer/></>
+    },
+    {
+      path: "/login",
+      element: <><Header/><Login/></>
+    },
+    {
+      path: "/interviewtips",
+      element: <><Header/><InterviewTips/><Footer/></>
+    },
+    {
+      path: "/contactus",
+      element: <><Header/><ContactUs/><Footer/></>
+    },
+  ])
+    return (
+      <>
+
+        <RouterProvider router={router} />
+      </>
+    )
 }
 
 export default App;
