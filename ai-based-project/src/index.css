@@ -1,0 +1,18 @@
+@import "tailwindcss";
+body {
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(44, 27, 78) 0%,
+    #110b23 60%,
+    #0a061b 100%
+  );
+  color: white;
+  font-family: 'Montserrat', sans-serif;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto; 
+  padding-top: 70px;
+}
