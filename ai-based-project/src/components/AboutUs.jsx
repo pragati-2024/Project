@@ -1,6 +1,6 @@
 import React from 'react';
 // Import images from assets (update paths as needed)
-import amitImg from '../assets/amit.png';
+import amitImg from '../assets/amit.jpg';
 import rahulImg from '../assets/b16a0f0ffdd056b4c542d6ddf821195f.jpg';
 import pragatiImg from '../assets/pragati.jpg';
 import fireImg from '../assets/fire.png';
