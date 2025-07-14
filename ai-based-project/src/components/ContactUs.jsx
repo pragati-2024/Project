@@ -71,9 +71,6 @@ const ContactUs = () => {
           </div>
         </div>
 
-        <div className="text-sm text-purple-400 text-right mt-10">
-          <i className="fas fa-code"></i> Student Project
-        </div>
       </div>
     </div>
   );
