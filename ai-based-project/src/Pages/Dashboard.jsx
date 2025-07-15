@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import TypingText from '../components/TypingText'
+import TypingText from '../components/TypingText.jsx'
 import InterviewAnalytics from '../components/InterviewAnalytics.jsx'
-import StartInterviewButton from '../components/StartInterviewButton'
-import Sidebar from '../components/Sidebar'
+import StartInterviewButton from '../components/StartInterviewButton.jsx'
+import Sidebar from '../components/Sidebar.jsx'
 
 const Dashboard = () => {
   const navigate = useNavigate()

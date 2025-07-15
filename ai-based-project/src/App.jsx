@@ -7,7 +7,6 @@ import Login from './components/Login.jsx';
 import ContactUs from './components/ContactUs.jsx';
 import Eror404 from './components/Eror404.jsx'; 
 import AboutUs from './components/AboutUs.jsx';
-import PracticeInterview from './Pages/Dashboard.jsx';
 import Reports from './Pages/Reports.jsx';
 import Profile from './Pages/Profile.jsx';
 import Settings from './Pages/Settings.jsx';
