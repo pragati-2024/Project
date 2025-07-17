@@ -49,7 +49,7 @@ const Home = () => {
 
     interval = setInterval(typeWriterEffect, 80);
 
-    return () => clearInterval(interval); // Cleanup when component unmounts
+    return () => clearInterval(interval);
   }, []);
     return (
       <div>
