@@ -91,7 +91,7 @@ const Faq = () => {
 
   return (
     <div className="min-h-screen bg-[#0f0e17] text-white py-12 px-4">
-      <h1 className="text-4xl font-bold text-center text-purple-400 mb-8">FAQs</h1>
+      <h1 className="text-6xl font-bold text-center text-purple-400 mb-8">FAQs</h1>
 
       <div className="max-w-4xl mx-auto mb-6 flex items-center space-x-2">
         <Search size={20} className="text-gray-400" />
