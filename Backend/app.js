@@ -1,14 +1,39 @@
-const bodyParser = require("body-parser");
+require("dotenv").config();
 const express = require("express");
-const UsersRoutes = require("./Route/UserRoutes");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const connectDB = require("./Connection/connection");
+const userRoutes = require("./Route/UserRoutes");
+
 const app = express();
-require("./Connection/conn")
 
+// Middleware
+app.use(cors());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(UsersRoutes)
+// Database connection
+connectDB();
 
-app.listen(5600 , ()=>{
-    console.log("server is listen on port no 5600")
-})
+// Routes
+app.use("/api/users", userRoutes);
+
+// Health check
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    database: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
+  });
+});
+
+// Error handling
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Internal Server Error" });
+});
+
+// Start server
+const PORT = process.env.PORT || 5600;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});

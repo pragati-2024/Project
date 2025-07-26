@@ -1,30 +1,51 @@
-const UsersModel = require("../Models/UsersModel")
-const bcrypt = require("bcrypt")
+const User = require("../Models/user");
+const bcrypt = require("bcrypt");
 
+exports.createUser = async (req, res) => {
+  const { UserName, Email, Password } = req.body;
 
+  // Validation
+  if (!UserName || !Email || !Password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
 
-exports.createuser = async(req,res)=>{
-
-    const {UserName , Email ,Phonenumber , Password } = req.body;
-
-    try {
-        const existinguser = await UsersModel.findOne({Email:Email});
-
-        if(existinguser){
-            return res.status(403).json({message:"user already registered"});
-        }
-
-        const hashpassword = await bcrypt.hash(Password , 5);
-
-        const resposne = await UsersModel.create({
-            UserName:UserName, 
-            Email:Email, 
-            Phonenumber:Phonenumber, 
-            Password:hashpassword
-        })
-        res.status(201).json({message:"user create success" , resposne});
-
-    } catch (error) {
-        res.status(500).json({message:error.message})
+  try {
+    // Check if user exists
+    const existingUser = await User.findOne({ Email });
+    if (existingUser) {
+      return res.status(409).json({ message: "Email already registered" });
     }
-}
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(Password, 10);
+
+    // Create user
+    const user = await User.create({
+      UserName,
+      Email,
+      Password: hashedPassword,
+    });
+
+    // Omit password in response
+    const userResponse = {
+      _id: user._id,
+      UserName: user.UserName,
+      Email: user.Email,
+      createdAt: user.createdAt,
+    };
+
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      user: userResponse,
+    });
+
+  } catch (error) {
+    console.error("Registration Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};

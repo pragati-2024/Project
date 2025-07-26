@@ -1,7 +1,15 @@
 const mongoose = require("mongoose");
 
-mongoose.connect("mongodb+srv://Moketon:Moketon@123@moketon.sjkfjma.mongodb.net/").then(()=>{
-    console.log("my mongo is connected")
-}).catch(()=>{
-    console.log("connection failed")
-})
+const MONGODB_URI = "mongodb+srv://Moketon:Moketon%40123@moketon.sjkfjma.mongodb.net/moketonDB?retryWrites=true&w=majority";
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(MONGODB_URI);
+    console.log("MongoDB connected successfully");
+  } catch (err) {
+    console.error("MongoDB connection failed:", err.message);
+    process.exit(1); // Exit the app if DB connection fails
+  }
+};
+
+module.exports = connectDB;
