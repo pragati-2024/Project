@@ -20,7 +20,7 @@ const Login = () => {
     // Check if user is already logged in
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/home'); // Redirect to home if already logged in
+      navigate('/'); // Redirect to login if already logged in
     }
   }, [navigate]);
 
@@ -47,7 +47,7 @@ const Login = () => {
         });
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
-        navigate('/home');
+        navigate('/');
       } else {
         // Signup logic
         if (formData.password !== formData.confirmPassword) {
