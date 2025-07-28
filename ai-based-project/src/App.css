@@ -278,6 +278,26 @@ body {
   justify-items: center;
 }
 
+/* Add this to your global styles */
+.profile-dropdown-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+.profile-dropdown-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 200ms, transform 200ms;
+}
+.profile-dropdown-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+.profile-dropdown-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 200ms, transform 200ms;
+}
+
 .card {
   width: 100%;
   max-width: 400px;

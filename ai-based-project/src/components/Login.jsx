@@ -42,8 +42,8 @@ const Login = () => {
         // Login logic
         const { email, password } = formData;
         const response = await signIn({ 
-          Email: email, 
-          Password: password 
+          email: formData.email, 
+          password: formData.password 
         });
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
@@ -56,9 +56,9 @@ const Login = () => {
         
         const { name, email, password } = formData;
         const response = await signUp({ 
-          UserName: name, 
-          Email: email, 
-          Password: password 
+          name: name, 
+          email: email, 
+          password: password 
         });
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
