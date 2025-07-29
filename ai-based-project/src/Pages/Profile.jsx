@@ -1,148 +1,217 @@
-import ProfileDropdown from '../components/ProfileDropdown'
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { CameraIcon, EnvelopeIcon, LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
+import React, { useRef } from 'react';
 
-// A good practice is to define reusable class strings for inputs and labels
-const labelClasses = "block text-sm font-medium text-gray-600 mb-2";
-const inputClasses = "w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 placeholder:text-gray-400 text-gray-800 caret-indigo-600";
-
-
-function Profile() {
-  // Example of using state to manage form data
-  const [formData, setFormData] = useState({
-    fullName: "Aarav Sharma",
-    email: "aarav.sharma@example.com",
-    location: "Kanpur, India",
-    dob: "2002-08-15",
-    password: "",
-    targetRoles: "Software Engineer, Data Analyst",
-    keySkills: "Python, React, SQL, AWS",
-    university: "Indian Institute of Technology, Kanpur",
-    major: "Computer Science and Engineering",
-    gradYear: "2025",
-    linkedin: "",
-    github: "",
-    portfolio: "",
+const Profile = () => {
+  const [user, setUser] = useState({
+    UserName: '',
+    Email: '',
+    profileImage: 'https://via.placeholder.com/150'
   });
+  const [password, setPassword] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      if (userData) {
+        const parsedUser = JSON.parse(userData);
+        setUser(prev => ({
+          ...prev,
+          UserName: parsedUser.UserName || '',
+          Email: parsedUser.Email || '',
+          profileImage: parsedUser.profileImage || 'https://via.placeholder.com/150'
+        }));
+      }
+    } catch (err) {
+      console.error('Error parsing user data:', err);
+    }
+  }, [navigate]);
+
+  const handleSave = () => {
+    setIsSaving(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsSaving(false);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
+    }, 1500);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setUser(prev => ({ ...prev, profileImage: event.target.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-  };
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // In a real application, you would send this data to your backend API
-    console.log("Profile data submitted:", formData);
-    alert("Profile saved successfully!");
+    setUser(prev => ({ ...prev, [name]: value }));
   };
 
-    return (
-    <div className="min-h-screen radial-background flex items-start justify-center p-6 sm:p-10">
+  if (!user) return null; // or loading spinner
 
-      <div className="w-full max-w-4xl bg-[#2a1e5c]/90 backdrop-blur-sm rounded-xl shadow-xl p-8 sm:p-12 text-white">
-
-        
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-extrabold text-white">Complete Your Profile</h1>
-          <p className="text-gray-200 mt-2">This information helps us personalize your mock interview experience.</p>
-        </div>
-        
-        <form onSubmit={handleSubmit}>
-          
-          {/* Section 1: Basic Information */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-white pb-2 border-b border-white/20 mb-6">Basic Information 👤</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="fullName" className={labelClasses + " text-white"}>Full Name</label>
-                <input type="text" id="fullName" name="fullName" value={formData.fullName} onChange={handleChange} className={inputClasses + " bg-white/10 text-white border-white/30 placeholder:text-gray-300"} required />
-              </div>
-              <div>
-                <label htmlFor="email" className={labelClasses + " text-white"}>Email Address</label>
-                <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} className={inputClasses + " bg-white/10 text-white border-white/30 placeholder:text-gray-300"} required />
-              </div>
-              <div>
-                <label htmlFor="location" className={labelClasses + " text-white"}>Location</label>
-                <input type="text" id="location" name="location" value={formData.location} onChange={handleChange} className={inputClasses + " bg-white/10 text-white border-white/30 placeholder:text-gray-300"} />
-              </div>
-              <div>
-                <label htmlFor="dob" className={labelClasses + " text-white"}>Date of Birth</label>
-                <input type="date" id="dob" name="dob" value={formData.dob} onChange={handleChange} className={inputClasses + " bg-white/10 text-white border-white/30 placeholder:text-gray-300"} />
-              </div>
-              <div>
-                <label htmlFor="password" className={labelClasses + " text-white"}>New Password (Optional)</label>
-                <input type="password" id="password" name="password" placeholder="Leave blank to keep current" value={formData.password} onChange={handleChange} className={inputClasses + " bg-white/10 text-white border-white/30 placeholder:text-gray-300"} />
-              </div>
-            </div>
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8"
+    >
+      <div className="max-w-md mx-auto bg-gray-800 rounded-3xl shadow-2xl overflow-hidden md:max-w-2xl border border-gray-700">
+        <motion.div
+          initial={{ scale: 0.9 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="p-8"
+        >
+          <div className="flex flex-col items-center justify-center mb-8">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative group"
+            >
+              <img
+                className="h-32 w-32 rounded-full object-cover border-4 border-gray-700 shadow-lg"
+                src={user.profileImage}
+                alt="Profile"
+              />
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileHover={{ opacity: 1 }}
+                className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center cursor-pointer"
+              >
+                <label htmlFor="profile-upload" className="cursor-pointer">
+                  <CameraIcon className="h-8 w-8 text-gray-300" />
+                  <input
+                    id="profile-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                </label>
+              </motion.div>
+            </motion.div>
+            <motion.h2
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="mt-4 text-2xl font-bold text-gray-100"
+            >
+              {user.UserName || 'Your Name'}
+            </motion.h2>
           </div>
 
-          {/* Section 2: Career Goals */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-white pb-2 border-b border-white/20 mb-6">Career Goals 🎯</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="targetRoles" className={labelClasses + " text-white"}>Target Job Roles</label>
-                <input type="text" id="targetRoles" name="targetRoles" value={formData.targetRoles} onChange={handleChange} className={inputClasses + " bg-white/10 text-white border-white/30 placeholder:text-gray-300"} />
+          <div className="space-y-6">
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="relative"
+            >
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <UserIcon className="h-5 w-5 text-gray-500" />
               </div>
-              <div>
-                <label htmlFor="keySkills" className={labelClasses + " text-white"}>Key Skills</label>
-                <input type="text" id="keySkills" name="keySkills" value={formData.keySkills} onChange={handleChange} className={inputClasses + " bg-white/10 text-white border-white/30 placeholder:text-gray-300"} />
-              </div>
-            </div>
-          </div>
+              <input
+                type="text"
+                name="UserName"
+                value={user.UserName}
+                onChange={handleInputChange}
+                className="block w-full pl-10 pr-3 py-3 border border-gray-700 rounded-xl bg-gray-700 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                placeholder="Full Name"
+              />
+            </motion.div>
 
-          {/* Section 3: Education & Background */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-white pb-2 border-b border-white/20 mb-6">Education & Background 🎓</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="university" className={labelClasses + " text-white"}>University Name</label>
-                <input type="text" id="university" name="university" value={formData.university} onChange={handleChange} className={inputClasses + " bg-white/10 text-white border-white/30 placeholder:text-gray-300"} />
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="relative"
+            >
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <EnvelopeIcon className="h-5 w-5 text-gray-500" />
               </div>
-              <div>
-                <label htmlFor="major" className={labelClasses + " text-white"}>Major / Field of Study</label>
-                <input type="text" id="major" name="major" value={formData.major} onChange={handleChange} className={inputClasses + " bg-white/10 text-white border-white/30 placeholder:text-gray-300"} />
-              </div>
-              <div className="md:col-span-2">
-                <label htmlFor="gradYear" className={labelClasses + " text-white"}>Graduation Year</label>
-                <input type="number" id="gradYear" name="gradYear" value={formData.gradYear} onChange={handleChange} className={inputClasses + " bg-white/10 text-white border-white/30 placeholder:text-gray-300"} min="1980" max="2030" />
-              </div>
-            </div>
-          </div>
+              <input
+                type="email"
+                name="Email"
+                value={user.Email}
+                onChange={handleInputChange}
+                className="block w-full pl-10 pr-3 py-3 border border-gray-700 rounded-xl bg-gray-700 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                placeholder="Email Address"
+              />
+            </motion.div>
 
-          {/* Section 4: Professional Links */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-white pb-2 border-b border-white/20 mb-6">Professional Links 🔗</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="linkedin" className={labelClasses + " text-white"}>LinkedIn Profile URL</label>
-                <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/yourprofile" value={formData.linkedin} onChange={handleChange} className={inputClasses + " bg-white/10 text-white border-white/30 placeholder:text-gray-300"} />
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="relative"
+            >
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <LockClosedIcon className="h-5 w-5 text-gray-500" />
               </div>
-              <div>
-                <label htmlFor="github" className={labelClasses + " text-white"}>GitHub Profile URL</label>
-                <input type="url" id="github" name="github" placeholder="https://github.com/yourusername" value={formData.github} onChange={handleChange} className={inputClasses + " bg-white/10 text-white border-white/30 placeholder:text-gray-300"} />
-              </div>
-              <div className="md:col-span-2">
-                <label htmlFor="portfolio" className={labelClasses + " text-white"}>Portfolio URL</label>
-                <input type="url" id="portfolio" name="portfolio" placeholder="https://yourwebsite.com" value={formData.portfolio} onChange={handleChange} className={inputClasses + " bg-white/10 text-white border-white/30 placeholder:text-gray-300"} />
-              </div>
-            </div>
-          </div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="block w-full pl-10 pr-3 py-3 border border-gray-700 rounded-xl bg-gray-700 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                placeholder="New Password"
+              />
+            </motion.div>
 
-          {/* Submit Button */}
-          <div className="mt-10 text-center">
-            <button type="submit" className="bg-gradient-to-r from-purple-600 to-indigo-500 text-white font-semibold py-3 px-10 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transform transition-all duration-300">
-              Save Profile
-            </button>
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.7 }}
+              className="pt-4"
+            >
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-lg font-medium text-white ${isSaving ? 'bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-[1.01]`}
+              >
+                {isSaving ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                  </>
+                ) : saveSuccess ? (
+                  <span className="flex items-center">
+                    <svg className="h-5 w-5 text-white mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Saved Successfully!
+                  </span>
+                ) : (
+                  'Save Profile'
+                )}
+              </button>
+            </motion.div>
           </div>
-
-        </form>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
-}
+};
 
 export default Profile;

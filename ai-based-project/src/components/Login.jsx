@@ -48,6 +48,7 @@ const Login = () => {
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
         navigate('/');
+        window.location.reload();
       } else {
         // Signup logic
         if (formData.password !== formData.confirmPassword) {
