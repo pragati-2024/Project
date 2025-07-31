@@ -17,6 +17,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import "./App.css";
 import Dashboard from './Pages/Dashboard.jsx';
 import InterviewSetup from './Pages/InterviewSetup.jsx';
+import ChatInterview from './Pages/ChatInterview.jsx';
 
 function App() {
   const router = createBrowserRouter([
@@ -67,6 +68,10 @@ function App() {
     {
       path: "/interviewsetup",
       element: <><Header/><InterviewSetup/><Footer/></>
+    },
+    {
+      path: "/chat-interview",
+      element: <><ChatInterview/></>
     }
   ])
     return (
