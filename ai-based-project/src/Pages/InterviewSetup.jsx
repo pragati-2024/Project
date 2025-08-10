@@ -22,7 +22,7 @@ const InterviewSetup = () => {
       title: "Voice Interview",
       description: "Audio-only conversation",
       icon: "🎙️",
-      path: "/voice-interview"
+      path: "/audio-interview"
     }
   ];
 

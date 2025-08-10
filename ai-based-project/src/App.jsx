@@ -18,6 +18,7 @@ import "./App.css";
 import Dashboard from './Pages/Dashboard.jsx';
 import InterviewSetup from './Pages/InterviewSetup.jsx';
 import ChatInterview from './Pages/ChatInterview.jsx';
+import AudioInterview from './Pages/AudioInterview.jsx';
 
 function App() {
   const router = createBrowserRouter([
@@ -72,6 +73,11 @@ function App() {
     {
       path: "/chat-interview",
       element: <><ChatInterview/></>
+    }
+    ,
+    {
+      path: "/audio-interview",
+      element: <><AudioInterview/></>
     }
   ])
     return (
