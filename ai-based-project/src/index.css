@@ -1,4 +1,27 @@
+@custom-variant dark (&:where(.dark, .dark *));
 @import "tailwindcss";
+
+:root {
+  --radial-bg: radial-gradient(
+    ellipse at center,
+    rgba(99, 102, 241, 0.10) 0%,
+    rgba(236, 72, 153, 0.06) 40%,
+    rgba(15, 23, 42, 0.02) 100%
+  );
+}
+
+.dark {
+  --radial-bg: radial-gradient(
+    ellipse at center,
+    rgba(123, 97, 255, 0.18) 0%,
+    rgba(17, 11, 35, 0.85) 60%,
+    rgba(10, 6, 27, 1) 100%
+  );
+}
+
+.radial-background {
+  background: var(--radial-bg);
+}
 /* body {
   margin: 0;
   padding: 0;

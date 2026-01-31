@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5600/api/users',
+  // Use Vite proxy in dev: '/api/users'
+  // Or override via VITE_API_BASE_URL for different environments.
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api/users',
   headers: {
     'Content-Type': 'application/json'
   },

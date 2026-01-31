@@ -18,6 +18,11 @@ import "./App.css";
 import Dashboard from './Pages/Dashboard.jsx';
 import InterviewSetup from './Pages/InterviewSetup.jsx';
 import ChatInterview from './Pages/ChatInterview.jsx';
+import VideoInterview from './Pages/VideoInterview.jsx';
+import VoiceInterview from './Pages/VoiceInterview.jsx';
+import Questions from './Pages/Questions.jsx';
+import { Privacy, Terms, Cookies, GDPR } from './Pages/LegalPage.jsx';
+import { ThemeProvider } from './context/ThemeContext.jsx';
 
 function App() {
   const router = createBrowserRouter([
@@ -66,16 +71,54 @@ function App() {
       element: <><Header/><Faq/><Footer/></>
     },
     {
+      path: "/faq",
+      element: <><Header/><Faq/><Footer/></>
+    },
+    {
       path: "/interviewsetup",
       element: <><Header/><InterviewSetup/><Footer/></>
     },
     {
       path: "/chat-interview",
       element: <><ChatInterview/></>
+    },
+    {
+      path: "/video-interview",
+      element: <><VideoInterview/></>
+    },
+    {
+      path: "/voice-interview",
+      element: <><VoiceInterview/></>
+    },
+    {
+      path: "/questions/:topic",
+      element: <><Header/><Questions/><Footer/></>
+    },
+    {
+      path: "/privacy",
+      element: <><Header/><Privacy/><Footer/></>
+    },
+    {
+      path: "/terms",
+      element: <><Header/><Terms/><Footer/></>
+    },
+    {
+      path: "/cookies",
+      element: <><Header/><Cookies/><Footer/></>
+    },
+    {
+      path: "/gdpr",
+      element: <><Header/><GDPR/><Footer/></>
+    },
+    {
+      path: "*",
+      element: <><Header/><Eror404/><Footer/></>
     }
   ])
     return (
-      <><RouterProvider router={router} /></>
+      <ThemeProvider>
+        <RouterProvider router={router} />
+      </ThemeProvider>
     )
 }
 
