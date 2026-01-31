@@ -19,24 +19,3 @@
 Thumbs.db
 .vscode/
 .idea/
-# Root ignores (monorepo)
-
-# Node
-**/node_modules/
-**/dist/
-**/dist-ssr/
-
-# Env files
-**/.env
-**/.env.*
-!**/.env.example
-!**/.env.*.example
-
-# Logs
-**/*.log
-
-# OS / editor
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
