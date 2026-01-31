@@ -42,10 +42,10 @@ app.use(express.urlencoded({ extended: true })); // Add this for form data
 connectDB();
 
 // Routes
-// app.use("/api/users", userRoutes);
-// app.use("/api/interview", interviewRoutes);
-// app.use("/api/questions", questionRoutes);
-// app.use("/api/contact", contactRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/interview", interviewRoutes);
+app.use("/api/questions", questionRoutes);
+app.use("/api/contact", contactRoutes);
 
 // Serve frontend build in production
 if (process.env.NODE_ENV === "production") {
@@ -53,10 +53,11 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static(distPath));
 
   // SPA fallback (avoid intercepting API routes)
-  app.get("*", (req, res, next) => {
-    if (req.path.startsWith("/api/")) return next();
-    return res.sendFile(path.join(distPath, "index.html"));
-  });
+app.get("/*", (req, res, next) => {
+  if (req.path.startsWith("/api/")) return next();
+  return res.sendFile(path.join(distPath, "index.html"));
+});
+
 }
 
 // Health check
