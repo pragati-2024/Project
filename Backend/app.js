@@ -42,10 +42,10 @@ app.use(express.urlencoded({ extended: true })); // Add this for form data
 connectDB();
 
 // Routes
-app.use("/api/users", userRoutes);
-app.use("/api/interview", interviewRoutes);
-app.use("/api/questions", questionRoutes);
-app.use("/api/contact", contactRoutes);
+// app.use("/api/users", userRoutes);
+// app.use("/api/interview", interviewRoutes);
+// app.use("/api/questions", questionRoutes);
+// app.use("/api/contact", contactRoutes);
 
 // Serve frontend build in production
 if (process.env.NODE_ENV === "production") {
