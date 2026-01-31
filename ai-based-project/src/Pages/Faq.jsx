@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import {
   Search,
@@ -93,22 +92,22 @@ const Faq = () => {
  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="flex min-h-screen bg-gray-900 text-white">
+    <div className="flex min-h-screen bg-transparent text-slate-900 dark:bg-gray-900 dark:text-white">
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-      <div className={`flex-1 p-8 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
-    <div className="min-h-screen bg-[#0f0e17] text-white py-12 px-4">
+      <div className={`flex-1 p-4 sm:p-6 md:p-8 transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}>
+    <div className="min-h-screen bg-transparent py-12 px-4">
       <h1 className="text-5xl sm:text-6xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">
         Frequently Asked Questions
       </h1>
 
       <div className="max-w-4xl mx-auto mb-6 flex items-center space-x-2">
-        <Search size={20} className="text-gray-400" />
+        <Search size={20} className="text-slate-500 dark:text-gray-400" />
         <input
           type="text"
           placeholder="Search FAQs..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 p-2 bg-[#1a1a2e] text-white rounded focus:outline-none transition duration-300 ease-in-out hover:bg-[#2a2a3e]"
+          className="flex-1 p-2 bg-white dark:bg-[#1a1a2e] text-slate-900 dark:text-white rounded focus:outline-none border border-slate-200 dark:border-transparent transition duration-300 ease-in-out hover:bg-slate-50 dark:hover:bg-[#2a2a3e]"
         />
       </div>
 
@@ -125,7 +124,7 @@ const Faq = () => {
         {filteredFaqs.map((faq, index) => (
           <div
             key={index}
-            className="border border-purple-600 rounded-lg bg-[#1a1a2e] p-4 transition-all duration-300 hover:shadow-lg"
+            className="border border-purple-500/60 rounded-lg bg-white dark:bg-[#1a1a2e] p-4 transition-all duration-300 hover:shadow-lg"
           >
             <button
               onClick={() => handleToggle(index)}
@@ -137,7 +136,7 @@ const Faq = () => {
               {openIndex.includes(index) ? <ChevronUp className="text-purple-300" /> : <ChevronDown className="text-purple-300" />}
             </button>
             {openIndex.includes(index) && (
-              <p className="mt-2 text-sm text-gray-300 transition duration-300 ease-in-out">{faq.answer}</p>
+              <p className="mt-2 text-sm text-slate-600 dark:text-gray-300 transition duration-300 ease-in-out">{faq.answer}</p>
             )}
           </div>
         ))}

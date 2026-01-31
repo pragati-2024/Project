@@ -1,19 +1,24 @@
-import { useState, useEffect } from 'react';
+// eslint-disable-next-line no-unused-vars
+import React, { useState, useEffect } from 'react';
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { CameraIcon, EnvelopeIcon, LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
-import React, { useRef } from 'react';
 import Sidebar from '../components/Sidebar.jsx';
+import API from '../api.jsx';
 
 const Profile = () => {
   const [user, setUser] = useState({
     UserName: '',
     Email: '',
-    profileImage: 'https://via.placeholder.com/150'
+    profileImage: ''
   });
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [avatarError, setAvatarError] = useState(false);
   const [password, setPassword] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,30 +37,80 @@ const Profile = () => {
           ...prev,
           UserName: parsedUser.UserName || '',
           Email: parsedUser.Email || '',
-          profileImage: parsedUser.profileImage || 'https://via.placeholder.com/150'
+          profileImage: parsedUser.profileImage || ''
         }));
       }
     } catch (err) {
       console.error('Error parsing user data:', err);
     }
+
+    // Also refresh from backend so profile stays consistent across devices
+    (async () => {
+      try {
+        const res = await API.get('/me');
+        if (res?.data?.user) {
+          const backendUser = res.data.user;
+          setUser((prev) => ({
+            ...prev,
+            UserName: backendUser.UserName || prev.UserName,
+            Email: backendUser.Email || prev.Email,
+            profileImage: backendUser.profileImage || prev.profileImage,
+          }));
+          localStorage.setItem('user', JSON.stringify(backendUser));
+          window.dispatchEvent(new Event('user-updated'));
+        }
+      } catch {
+        // ignore: app should still work offline
+      }
+    })();
   }, [navigate]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setSaveError('');
     setIsSaving(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      const payload = {
+        UserName: user.UserName,
+        Email: user.Email,
+        profileImage: user.profileImage,
+      };
+      if (password && password.trim()) payload.Password = password;
+
+      const res = await API.put('/me', payload);
+      const updated = res?.data?.user;
+      if (!updated) throw new Error('Profile update failed');
+
+      setUser((prev) => ({
+        ...prev,
+        UserName: updated.UserName || prev.UserName,
+        Email: updated.Email || prev.Email,
+        profileImage: updated.profileImage || prev.profileImage,
+      }));
+
+      localStorage.setItem('user', JSON.stringify(updated));
+      window.dispatchEvent(new Event('user-updated'));
+
+      setPassword('');
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2000);
-    }, 1500);
+    } catch (err) {
+      setSaveError(err?.response?.data?.message || err?.message || 'Unable to save profile');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        setSaveError('Please select an image under 2MB.');
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (event) => {
         setUser(prev => ({ ...prev, profileImage: event.target.result }));
+        setAvatarError(false);
       };
       reader.readAsDataURL(file);
     }
@@ -67,17 +122,24 @@ const Profile = () => {
   };
 
   if (!user) return null; // or loading spinner
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const initials = String(user?.UserName || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p.charAt(0).toUpperCase())
+    .join('') || 'U';
 
   return (
-    <div className="flex min-h-screen bg-gray-900 text-white">
+    <div className="flex min-h-screen bg-transparent text-slate-900 dark:bg-gray-900 dark:text-white radial-background">
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-      <div className={`flex-1 p-8 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
+      <div className={`flex-1 p-4 sm:p-6 md:p-8 transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'md:ml-20'} `}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8"
+          className="min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8"
         >
           <div className="max-w-md mx-auto bg-gray-800 rounded-3xl shadow-2xl overflow-hidden md:max-w-2xl border border-gray-700">
             <motion.div
@@ -92,11 +154,18 @@ const Profile = () => {
                   whileTap={{ scale: 0.95 }}
                   className="relative group"
                 >
-                  <img
-                    className="h-32 w-32 rounded-full object-cover border-4 border-gray-700 shadow-lg"
-                    src={'https://i.pravatar.cc/400'}
-                    alt="Profile"
-                  />
+                  {!avatarError && user.profileImage ? (
+                    <img
+                      className="h-32 w-32 rounded-full object-cover border-4 border-gray-700 shadow-lg"
+                      src={user.profileImage}
+                      alt="Profile"
+                      onError={() => setAvatarError(true)}
+                    />
+                  ) : (
+                    <div className="h-32 w-32 rounded-full border-4 border-gray-700 shadow-lg bg-gray-700 flex items-center justify-center text-3xl font-bold text-gray-200 select-none">
+                      {initials}
+                    </div>
+                  )}
                   <motion.div
                     initial={{ opacity: 0 }}
                     whileHover={{ opacity: 1 }}
@@ -125,6 +194,11 @@ const Profile = () => {
               </div>
 
               <div className="space-y-6">
+                {saveError && (
+                  <div className="rounded border border-red-500/40 bg-red-500/10 text-red-200 px-4 py-3 text-sm">
+                    {saveError}
+                  </div>
+                )}
                 <motion.div
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}

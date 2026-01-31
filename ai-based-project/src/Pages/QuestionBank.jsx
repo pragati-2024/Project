@@ -8,12 +8,16 @@ const questionData = [
   { id: 3, name: 'JavaScript Notes', description: 'View Interview Questions', category: 'Frontend', image: '../assets/js.png', path: 'javascript' },
   { id: 4, name: 'React Notes', description: 'View Interview Questions', category: 'Frontend', image: '../assets/react.png', path: 'react' },
   { id: 5, name: 'Node.js Notes', description: 'View Interview Questions', category: 'Backend', image: '../assets/node-js.png', path: 'node' },
-  { id: 6, name: 'Python Notes', description: 'View Interview Questions', category: 'Backend', image: '../assets/python.png', path: 'path' },
+  { id: 9, name: 'Express.js Notes', description: 'View Interview Questions', category: 'Backend', image: '../assets/node-js.png', path: 'express' },
+  { id: 6, name: 'Python Notes', description: 'View Interview Questions', category: 'Backend', image: '../assets/python.png', path: 'python' },
   { id: 7, name: 'DevOps Notes', description: 'View Interview Questions', category: 'DevOps', image: '../assets/devops.png', path: 'devops' },
   { id: 8, name: 'AI/ML Notes', description: 'View Interview Questions', category: 'AI/ML', image: '../assets/ai.png', path: 'ai-ml' },
+  { id: 10, name: 'AI Integration Notes', description: 'How to integrate AI in apps', category: 'AI/ML', image: '../assets/ai.png', path: 'ai-integration' },
+  { id: 11, name: 'HR Round', description: 'Most common HR questions', category: 'HR/GD', image: '../assets/fire.png', path: 'hr' },
+  { id: 12, name: 'GD Rounds', description: 'Group Discussion tips + topics', category: 'HR/GD', image: '../assets/1F4CA_color.png', path: 'gd-rounds' },
 ];
 
-const categories = ['Frontend', 'Backend', 'DevOps', 'AI/ML'];
+const categories = ['Frontend', 'Backend', 'DevOps', 'AI/ML', 'HR/GD'];
 
 // Helper function to group data by category
 const groupByCategory = (data) => {
@@ -38,13 +42,13 @@ const QuestionBank = () => {
  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="flex min-h-screen bg-gray-900 text-white">
+    <div className="flex min-h-screen bg-transparent text-slate-900 dark:bg-gray-900 dark:text-white">
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-      <div className={`flex-1 p-8 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
-    <div className="min-h-screen px-6 py-10 radial-background text-white">
+      <div className={`flex-1 p-4 sm:p-6 md:p-8 transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}>
+    <div className="min-h-screen px-6 py-10 radial-background">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-2">Interview Question Bank</h1>
-        <p className="text-lg text-purple-200">Select your topic to view detailed questions</p>
+        <p className="text-lg text-slate-600 dark:text-purple-200">Select your topic to view detailed questions</p>
       </div>
 
       {/* Categories Buttons */}
@@ -71,7 +75,7 @@ const QuestionBank = () => {
         <input
           type="text"
           placeholder="Search topic..."
-          className="w-full max-w-md px-5 py-3 rounded-lg bg-purple-700 text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-pink-500"
+          className="w-full max-w-md px-5 py-3 rounded-lg bg-white/80 dark:bg-purple-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-pink-500 border border-slate-200 dark:border-transparent"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />

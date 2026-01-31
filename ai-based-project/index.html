@@ -1,9 +1,36 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Apply theme before the app loads to avoid a light flash on first paint.
+      (function () {
+        try {
+          var STORAGE_KEY = "theme"; // 'light' | 'dark' | 'system'
+          var saved = localStorage.getItem(STORAGE_KEY);
+          var theme = saved === "light" || saved === "dark" || saved === "system" ? saved : "dark";
+
+          var resolved = theme;
+          if (theme === "system") {
+            var prefersDark =
+              window.matchMedia &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches;
+            resolved = prefersDark ? "dark" : "light";
+          }
+
+          var root = document.documentElement;
+          root.classList.toggle("dark", resolved === "dark");
+          root.dataset.theme = resolved;
+          root.style.colorScheme = resolved;
+        } catch (e) {
+          // Fallback: keep dark
+          document.documentElement.classList.add("dark");
+          document.documentElement.style.colorScheme = "dark";
+        }
+      })();
+    </script>
     <title>Mockneto</title>
   </head>
   <body>

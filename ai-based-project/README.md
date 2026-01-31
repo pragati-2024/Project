@@ -1,12 +1,73 @@
-# React + Vite
+# AI Mock Interview (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend for the Mock Interview project.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React
+- Vite
+- React Router
+- Tailwind (via project config)
+- Fetch/Axios style API calls (project uses `fetch` for interview routes)
 
-## Expanding the ESLint configuration
+## Setup
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. Install deps:
+
+- `cd ai-based-project`
+- `npm install`
+
+2. (Optional) Create `.env` based on `.env.example`
+
+Recommended dev default (no env needed):
+
+- Frontend calls backend via `/api/*` and Vite proxies to `http://localhost:5600`
+
+3. Run:
+
+- `npm run dev`
+
+Vite will start on `http://localhost:5173` (or next free port).
+
+## GitHub / No node_modules
+
+- Don’t push `node_modules/` to GitHub.
+- After cloning the repo, run: `cd ai-based-project && npm install`
+
+## Backend Connection
+
+- Dev default: frontend calls `/api/*` and Vite proxies to `http://localhost:5600`
+- If you deploy separately, set `VITE_API_BASE_URL` (example in `.env.example`)
+
+## Routes
+
+- `/interviewsetup`
+- `/chat-interview`
+- `/video-interview`
+- `/voice-interview`
+- `/question` (Question Bank list)
+- `/questions/:topic` (topic questions)
+
+## Notes
+
+- Do not put API keys in the frontend.
+- Gemini key should be configured on the backend as `GEMINI_API_KEY`.
+
+## End-to-End Flows
+
+### 1) Start Interview Flow
+
+- Home "Get started" → `/interviewsetup`
+- Choose Chat / Video / Voice → navigates to the selected route
+
+### 2) Chat / Video / Voice Interview Flow
+
+- Frontend requests questions from backend:
+  - `POST /api/interview/questions`
+- Candidate answers:
+  - Chat/Video: type answers
+  - Voice: type or use speech-to-text; questions are also spoken via TTS
+  - Voice also supports mic monitoring (hear your voice) + recording + playback
+- Frontend requests feedback:
+  - `POST /api/interview/feedback`
+- Feedback saved in `localStorage` and shown on Dashboard

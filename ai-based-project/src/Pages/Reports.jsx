@@ -1,6 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import Sidebar from '../components/Sidebar.jsx';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 const data = [
   { name: 'Jan', interviews: 3, success: 2 },
@@ -15,13 +15,13 @@ const Reports = () => {
    const [sidebarOpen, setSidebarOpen] = useState(true);
   
     return (
-      <div className="flex min-h-screen bg-gray-900 text-white">
+      <div className="flex min-h-screen bg-transparent text-slate-900 dark:bg-gray-900 dark:text-white">
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <div className={`flex-1 p-8 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
+        <div className={`flex-1 p-4 sm:p-6 md:p-8 transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}>
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-6">Interview Reports</h1>
       
-      <div className="bg-gray-800 rounded-lg p-6 shadow-lg mb-6">
+      <div className="bg-white/70 dark:bg-gray-800 rounded-lg p-6 shadow-lg mb-6 border border-slate-200/70 dark:border-gray-700 backdrop-blur">
         <h2 className="text-xl font-semibold mb-4">Monthly Performance</h2>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
@@ -54,8 +54,8 @@ const Reports = () => {
 
 const StatCard = ({ title, value, change, positive }) => {
   return (
-    <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
-      <h3 className="text-gray-400 mb-1">{title}</h3>
+    <div className="bg-white/70 dark:bg-gray-800 rounded-lg p-6 shadow-lg border border-slate-200/70 dark:border-gray-700 backdrop-blur">
+      <h3 className="text-slate-500 dark:text-gray-400 mb-1">{title}</h3>
       <div className="flex items-end justify-between">
         <span className="text-3xl font-bold">{value}</span>
         <span className={`text-sm ${positive ? 'text-green-400' : 'text-red-400'}`}>

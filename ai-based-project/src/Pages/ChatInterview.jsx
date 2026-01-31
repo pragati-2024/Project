@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const ChatInterview = () => {
   const [interviewDetails, setInterviewDetails] = useState({
@@ -13,9 +13,67 @@ const ChatInterview = () => {
   const [answers, setAnswers] = useState([]);
   const [currentAnswer, setCurrentAnswer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [answerCheck, setAnswerCheck] = useState(null);
+  const [isCheckingAnswer, setIsCheckingAnswer] = useState(false);
+  const lastCheckedRef = useRef({ questionIndex: -1, answer: "" });
+
+  const isBuiltInCompany = (company) => {
+    const normalized = String(company || "").trim().toLowerCase();
+    return normalized === "google" || normalized === "amazon" || normalized === "microsoft";
+  };
+
+  const persistHistoryToServer = async (payload) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      await fetch("/api/interview/history", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+    } catch {
+      // ignore
+    }
+  };
+
+  const appendFeedbackToHistory = (text) => {
+    const entry = {
+      date: new Date().toISOString(),
+      text,
+      mode: "chat",
+      company: interviewDetails.company,
+      jobRole: interviewDetails.jobRole,
+      level: interviewDetails.level,
+      focusArea: interviewDetails.focusArea,
+    };
+
+    try {
+      const stored = localStorage.getItem("interviewFeedback");
+      const existing = stored ? JSON.parse(stored) : [];
+      const history = Array.isArray(existing) ? existing : [];
+      history.unshift(entry);
+      localStorage.setItem("interviewFeedback", JSON.stringify(history.slice(0, 20)));
+    } catch {
+      // Fallback to plain string (still works)
+      localStorage.setItem("interviewFeedback", text);
+    }
+
+    void persistHistoryToServer(entry);
+  };
   const [interviewStage, setInterviewStage] = useState("setup");
   const [feedback, setFeedback] = useState("");
   const [typingEffect, setTypingEffect] = useState("");
+
+  const verdictStyles = (verdict) => {
+    const v = String(verdict || "").toLowerCase();
+    if (v === "strong") return "bg-green-600/20 text-green-200 border border-green-500/40";
+    if (v === "okay") return "bg-yellow-600/20 text-yellow-200 border border-yellow-500/40";
+    if (v === "weak") return "bg-red-600/20 text-red-200 border border-red-500/40";
+    return "bg-gray-600/20 text-gray-200 border border-gray-500/40";
+  };
 
   // Typing animation
   useEffect(() => {
@@ -39,50 +97,35 @@ const ChatInterview = () => {
   const generateQuestions = async () => {
     setIsLoading(true);
     try {
-      const prompt = `Generate exactly 5 interview questions for a ${interviewDetails.level}-level ${interviewDetails.jobRole} position${
-        interviewDetails.company ? ` at ${interviewDetails.company}` : ""
-      }. Focus on ${interviewDetails.focusArea} aspects. Return only the questions, one per line, without numbering.`;
-
-      const API_KEY = "REDACTED_GEMINI_API_KEY"; // Replace with your actual API key
-      const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
-
-      const response = await fetch(API_URL, {
+      const useBank = isBuiltInCompany(interviewDetails.company);
+      const response = await fetch("/api/interview/questions", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.5,
-            maxOutputTokens: 2000
-          }
-        })
+          company: interviewDetails.company,
+          jobRole: interviewDetails.jobRole,
+          level: interviewDetails.level,
+          focusArea: interviewDetails.focusArea,
+          ...(useBank ? {} : { count: 5 }),
+        }),
       });
 
       if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+        const errText = await response.text().catch(() => "");
+        throw new Error(errText || `Failed to fetch questions (${response.status})`);
       }
 
       const data = await response.json();
-      const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-      const qs = generatedText
-        .split("\n")
-        .map(q => q.replace(/^\d+\.?\s*/, "").trim())
-        .filter(q => q.length > 0)
-        .slice(0, 5);
-
-      if (qs.length === 0) {
-        throw new Error("No questions generated");
-      }
+      const qs = Array.isArray(data?.questions) ? data.questions : [];
+      if (qs.length === 0) throw new Error("No questions received");
 
       setQuestions(qs);
       setInterviewStage("interview");
+      setAnswers([]);
+      setCurrentQuestionIndex(0);
+      setCurrentAnswer("");
+      setAnswerCheck(null);
+      lastCheckedRef.current = { questionIndex: -1, answer: "" };
     } catch (error) {
       console.error("Error generating questions:", error);
       alert("Failed to generate questions. Please try again.");
@@ -91,81 +134,154 @@ const ChatInterview = () => {
     }
   };
 
-  const submitAnswer = () => {
-    if (!currentAnswer.trim()) {
+  useEffect(() => {
+    if (interviewStage !== "interview") return;
+    setCurrentAnswer(answers[currentQuestionIndex] || "");
+    setAnswerCheck(null);
+    lastCheckedRef.current = { questionIndex: -1, answer: "" };
+  }, [currentQuestionIndex, interviewStage]);
+
+  const checkCurrentAnswer = async () => {
+    if (isCheckingAnswer) return;
+
+    const question = questions[currentQuestionIndex];
+    const answer = String(currentAnswer || "").trim();
+    if (!answer) {
       alert("Please provide an answer.");
       return;
     }
+
+    if (
+      answerCheck &&
+      lastCheckedRef.current.questionIndex === currentQuestionIndex &&
+      lastCheckedRef.current.answer === answer
+    ) {
+      return;
+    }
+
+    setIsCheckingAnswer(true);
+    try {
+      const response = await fetch("/api/interview/check-answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company: interviewDetails.company,
+          jobRole: interviewDetails.jobRole,
+          level: interviewDetails.level,
+          focusArea: interviewDetails.focusArea,
+          question,
+          answer,
+        }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text().catch(() => "");
+        throw new Error(errText || `Failed to check answer (${response.status})`);
+      }
+
+      const data = await response.json();
+      setAnswerCheck(data);
+      lastCheckedRef.current = { questionIndex: currentQuestionIndex, answer };
+    } catch (err) {
+      console.error("Answer check failed:", err);
+      setAnswerCheck({
+        source: "error",
+        feedback: "Failed to check answer. Please try again.",
+        warning: err?.message,
+      });
+    } finally {
+      setIsCheckingAnswer(false);
+    }
+  };
+
+  const submitAnswer = async () => {
+    const answer = String(currentAnswer || "").trim();
+    if (!answer) {
+      alert("Please provide an answer.");
+      return;
+    }
+
+    const alreadyChecked =
+      !!answerCheck &&
+      lastCheckedRef.current.questionIndex === currentQuestionIndex &&
+      lastCheckedRef.current.answer === answer;
+
+    if (!alreadyChecked) {
+      await checkCurrentAnswer();
+      return;
+    }
+
     const updatedAnswers = [...answers];
-    updatedAnswers[currentQuestionIndex] = currentAnswer;
+    updatedAnswers[currentQuestionIndex] = answer;
     setAnswers(updatedAnswers);
     setCurrentAnswer("");
+    setAnswerCheck(null);
+    lastCheckedRef.current = { questionIndex: -1, answer: "" };
+
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
+      setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
 
   // Generate feedback using Gemini API
-  const generateFeedback = async () => {
+  const generateFeedback = async (finalAnswers = answers) => {
     setIsLoading(true);
     try {
-      const prompt = `Act as an interview coach. Provide detailed feedback for these interview answers:
-      
-      Job Role: ${interviewDetails.jobRole}
-      Experience Level: ${interviewDetails.level}
-      Focus Area: ${interviewDetails.focusArea}
-      
-      ${questions.map((q, i) => `
-      Question ${i+1}: ${q}
-      Answer: ${answers[i] || "No answer provided"}
-      `).join("\n")}
-      
-      Provide specific feedback on:
-      1. Technical accuracy
-      2. Communication skills
-      3. Areas for improvement
-      4. Overall rating out of 10
-      5. Suggested next steps`;
-
-      const API_KEY = "REDACTED_GEMINI_API_KEY"; // Replace with your actual API key
-      const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
-
-      const response = await fetch(API_URL, {
+      const response = await fetch("/api/interview/feedback", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 2000
-          }
-        })
+          company: interviewDetails.company,
+          jobRole: interviewDetails.jobRole,
+          level: interviewDetails.level,
+          focusArea: interviewDetails.focusArea,
+          questions,
+          answers: finalAnswers,
+        }),
       });
 
       if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+        const errText = await response.text().catch(() => "");
+        throw new Error(errText || `Failed to fetch feedback (${response.status})`);
       }
 
       const data = await response.json();
-      const generatedFeedback = data.candidates?.[0]?.content?.parts?.[0]?.text || "No feedback generated";
+      const generatedFeedback = data?.feedback || "No feedback generated";
 
       setFeedback(generatedFeedback);
-      localStorage.setItem("interviewFeedback", generatedFeedback);
+      appendFeedbackToHistory(generatedFeedback);
       setInterviewStage("feedback");
     } catch (error) {
       console.error("Error generating feedback:", error);
       setFeedback("Failed to generate feedback. Here's a basic analysis:\n\n" +
-        questions.map((q, i) => `Q${i+1}: ${q}\nA: ${answers[i] || "No answer"}\n`).join("\n"));
+        questions.map((q, i) => `Q${i+1}: ${q}\nA: ${finalAnswers[i] || "No answer"}\n`).join("\n"));
       setInterviewStage("feedback");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const submitFinalAnswer = async () => {
+    const answer = String(currentAnswer || "").trim();
+    if (!answer) {
+      alert("Please provide an answer.");
+      return;
+    }
+
+    const alreadyChecked =
+      !!answerCheck &&
+      lastCheckedRef.current.questionIndex === currentQuestionIndex &&
+      lastCheckedRef.current.answer === answer;
+
+    if (!alreadyChecked) {
+      await checkCurrentAnswer();
+      return;
+    }
+
+    const updatedAnswers = [...answers];
+    updatedAnswers[currentQuestionIndex] = answer;
+    setAnswers(updatedAnswers);
+    await generateFeedback(updatedAnswers);
   };
 
   const handleDetailChange = (field, value) => {
@@ -268,10 +384,128 @@ const ChatInterview = () => {
                 className="w-full p-3 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
                 rows={6}
                 value={currentAnswer}
-                onChange={(e) => setCurrentAnswer(e.target.value)}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  setCurrentAnswer(next);
+                  if (answerCheck) {
+                    const normalized = String(next || "").trim();
+                    if (
+                      lastCheckedRef.current.questionIndex === currentQuestionIndex &&
+                      lastCheckedRef.current.answer !== normalized
+                    ) {
+                      setAnswerCheck(null);
+                    }
+                  }
+                }}
                 placeholder="Type your answer here..."
               />
             </div>
+
+            <div className="flex gap-3 mb-6">
+              <button
+                onClick={checkCurrentAnswer}
+                disabled={isCheckingAnswer || !String(currentAnswer || "").trim()}
+                className="flex-1 bg-indigo-600 py-2 rounded hover:bg-indigo-500 transition-colors disabled:opacity-50"
+              >
+                {isCheckingAnswer ? "Checking..." : "Check Answer"}
+              </button>
+              {answerCheck && (
+                <button
+                  onClick={() => {
+                    setAnswerCheck(null);
+                    lastCheckedRef.current = { questionIndex: -1, answer: "" };
+                  }}
+                  className="flex-1 bg-gray-600 py-2 rounded hover:bg-gray-500 transition-colors"
+                >
+                  Clear Check
+                </button>
+              )}
+            </div>
+
+            {answerCheck && (
+              <div className="bg-gray-700 p-4 rounded mb-6 border border-gray-600">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-gray-300 text-sm">
+                    Answer Check{answerCheck?.source ? ` (${answerCheck.source})` : ""}
+                  </div>
+                  {typeof answerCheck?.score === "number" && (
+                    <div className="text-gray-200 text-sm">Score: {answerCheck.score}/10</div>
+                  )}
+                </div>
+                {answerCheck?.verdict && (
+                  <div className="mb-3">
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded text-xs ${verdictStyles(
+                        answerCheck.verdict,
+                      )}`}
+                    >
+                      Verdict: {String(answerCheck.verdict)}
+                    </span>
+                  </div>
+                )}
+                {answerCheck?.warning && (
+                  <div className="text-yellow-200 text-xs mb-2">{String(answerCheck.warning)}</div>
+                )}
+
+                {(Array.isArray(answerCheck?.good) || Array.isArray(answerCheck?.improve)) && (
+                  <div className="space-y-3">
+                    {Array.isArray(answerCheck?.good) && answerCheck.good.length > 0 && (
+                      <div>
+                        <div className="text-gray-200 text-sm mb-1">What’s good</div>
+                        <ul className="text-gray-100 text-sm list-disc pl-5 space-y-1">
+                          {answerCheck.good.slice(0, 3).map((item, idx) => (
+                            <li key={`good-${idx}`}>{String(item)}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {Array.isArray(answerCheck?.improve) && answerCheck.improve.length > 0 && (
+                      <div>
+                        <div className="text-gray-200 text-sm mb-1">What to improve</div>
+                        <ul className="text-gray-100 text-sm list-disc pl-5 space-y-1">
+                          {answerCheck.improve.slice(0, 3).map((item, idx) => (
+                            <li key={`imp-${idx}`}>{String(item)}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {Array.isArray(answerCheck?.keyMissing) && answerCheck.keyMissing.length > 0 && (
+                      <div>
+                        <div className="text-gray-200 text-sm mb-1">Key missing points</div>
+                        <ul className="text-gray-100 text-sm list-disc pl-5 space-y-1">
+                          {answerCheck.keyMissing.slice(0, 2).map((item, idx) => (
+                            <li key={`miss-${idx}`}>{String(item)}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {answerCheck?.improvedAnswer && (
+                      <div>
+                        <div className="text-gray-200 text-sm mb-1">Suggested improved answer</div>
+                        <pre className="whitespace-pre-wrap font-sans text-gray-100 text-sm bg-gray-800/50 p-3 rounded border border-gray-600">
+                          {String(answerCheck.improvedAnswer)}
+                        </pre>
+                      </div>
+                    )}
+
+                    {answerCheck?.oneLinerTip && (
+                      <div className="text-gray-200 text-sm">
+                        <span className="text-gray-300">One-liner tip:</span> {String(answerCheck.oneLinerTip)}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {!Array.isArray(answerCheck?.good) && !Array.isArray(answerCheck?.improve) && (
+                  <pre className="whitespace-pre-wrap font-sans text-gray-100">
+                    {answerCheck?.feedback || "No feedback"}
+                  </pre>
+                )}
+              </div>
+            )}
             
             <div className="flex justify-between gap-4">
               {currentQuestionIndex > 0 && (
@@ -286,19 +520,24 @@ const ChatInterview = () => {
               {currentQuestionIndex < questions.length - 1 ? (
                 <button
                   onClick={submitAnswer}
+                  disabled={isCheckingAnswer}
                   className={`flex-1 bg-blue-600 py-2 rounded hover:bg-blue-500 transition-colors ${
                     currentQuestionIndex > 0 ? "" : "ml-auto"
-                  }`}
+                  } disabled:opacity-50`}
                 >
                   Next
                 </button>
               ) : (
                 <button
-                  onClick={generateFeedback}
-                  disabled={isLoading}
+                  onClick={submitFinalAnswer}
+                  disabled={isLoading || isCheckingAnswer}
                   className="flex-1 bg-green-600 py-2 rounded hover:bg-green-500 transition-colors disabled:opacity-50"
                 >
-                  {isLoading ? "Generating Feedback..." : "Submit Final Answer"}
+                  {isLoading
+                    ? "Generating Feedback..."
+                    : isCheckingAnswer
+                      ? "Checking Answer..."
+                      : "Submit Final Answer"}
                 </button>
               )}
             </div>

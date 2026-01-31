@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 import InterviewImage from '../assets/an-isometric-3d-illustration-depicting-a_2I8c-hUtRFKGqF6ie-btZQ_B--sLBIqSV63F4x75Kj69A-removebg-preview.png';
 import Brain from '../assets/1F9E0_color.png';
@@ -57,10 +58,10 @@ const Home = () => {
           <div className="hero">
             <div className="hero-badge">🤖 Ai Based Mock Interview 🚀</div>
 
-            <h1 class="hero-title">
+            <h1 className="hero-title">
   Accelerate Your <br />
   <span className="dynamic-wrapper">
-    <span className="changing-text">Job Success</span><span class="cursor">|</span>
+    <span className="changing-text">Job Success</span><span className="cursor">|</span>
   </span>
 </h1>
 
@@ -68,7 +69,7 @@ const Home = () => {
               Prepare like a pro with intelligent mock interviews, adaptive questioning, and actionable insights — everything you need to stand out and get hired.
             </p>
 
-            <a href="#start" className="hero-btn">Get started</a>
+            <Link to="/interviewsetup" className="hero-btn">Get started</Link>
           </div>
 
           <div className="hero-image">

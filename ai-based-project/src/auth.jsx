@@ -127,3 +127,31 @@ export const refreshToken = async () => {
     return false;
   }
 };
+
+export const signInWithGoogle = async (idToken) => {
+  try {
+    if (!idToken) throw new Error('Google token missing');
+
+    const response = await API.post('/google', {
+      idToken,
+    });
+
+    if (!response.data?.token) {
+      throw new Error('Authentication token missing in response');
+    }
+
+    localStorage.setItem('token', response.data.token);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      const message = error.response.data?.message || 'Google login failed';
+      throw new Error(message);
+    } else if (error.request) {
+      throw new Error('No response from server. Please check your connection.');
+    } else {
+      throw new Error(error.message || 'Google login failed');
+    }
+  }
+};

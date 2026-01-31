@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const InterviewTipsPage = () => {
   const [activeModal, setActiveModal] = useState(null);
@@ -213,12 +214,12 @@ const InterviewTipsPage = () => {
       <header className="fixed top-0 left-0 right-0 w-full flex justify-between items-center py-3 px-8 bg-[rgba(255,255,255,0.05)] backdrop-blur-md border-b border-[rgba(255,255,255,0.1)] shadow-lg z-50">
         <div className="text-2xl font-bold text-white">Mockneto</div>
         <nav className="flex items-center space-x-6">
-          <a href="/" className="text-white hover:text-[#b78be6] transition">Home</a>
-          <a href="#" className="text-white hover:text-[#b78be6] transition">Practice Interview</a>
-          <a href="/interviewtips" className="text-white hover:text-[#b78be6] transition">Interview Tips</a>
-          <a href="/contactus" className="text-white hover:text-[#b78be6] transition">Contact Us</a>
-          <a href="/aboutus" className="text-white hover:text-[#b78be6] transition">About Us</a>
-          <a href="/login" className="bg-gradient-to-r from-[#6648de] to-[#6a7ae7] text-white px-5 py-2 rounded-lg font-semibold hover:opacity-90 transition">Login</a>
+          <Link to="/" className="text-white hover:text-[#b78be6] transition">Home</Link>
+          <Link to="/dashboard" className="text-white hover:text-[#b78be6] transition">Practice Interview</Link>
+          <Link to="/interviewtips" className="text-white hover:text-[#b78be6] transition">Interview Tips</Link>
+          <Link to="/contactus" className="text-white hover:text-[#b78be6] transition">Contact Us</Link>
+          <Link to="/aboutus" className="text-white hover:text-[#b78be6] transition">About Us</Link>
+          <Link to="/login" className="bg-gradient-to-r from-[#6648de] to-[#6a7ae7] text-white px-5 py-2 rounded-lg font-semibold hover:opacity-90 transition">Login</Link>
         </nav>
       </header>
 
