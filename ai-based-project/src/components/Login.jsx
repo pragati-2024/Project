@@ -132,6 +132,16 @@ const Login = () => {
 
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
+  const handleGoogleError = () => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    setInfo('');
+    setError(
+      `Google login is not allowed for this domain${origin ? ` (${origin})` : ''}. ` +
+      `Fix: Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID → ` +
+      `add this to Authorized JavaScript origins: ${origin || '<your-frontend-origin>'}.`
+    );
+  };
+
   const finishLogin = (response) => {
     window.dispatchEvent(new Event('user-updated'));
 
@@ -502,7 +512,7 @@ const Login = () => {
                     >
                       <GoogleLogin
                         onSuccess={handleGoogleSuccess}
-                        onError={() => setError('Google login failed')}
+                        onError={handleGoogleError}
                         theme="outline"
                         size="large"
                         shape="pill"

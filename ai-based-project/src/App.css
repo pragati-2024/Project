@@ -71,10 +71,6 @@ body {
     padding: 10px 0 4px;
   }
 
-  .header.menu-open .links {
-    display: flex;
-  }
-
   .links a {
     padding: 8px 10px;
     border-radius: 10px;
