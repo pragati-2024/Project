@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://YOUR_BACKEND_DOMAIN/api/:path*"
+      "destination": "https://project-emqa.onrender.com/api/:path*"
     }
   ]
 }
