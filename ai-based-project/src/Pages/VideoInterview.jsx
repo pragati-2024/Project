@@ -449,7 +449,6 @@ const VideoInterview = () => {
                 <div className="text-gray-300 text-sm mb-2">Camera Preview</div>
                 <video
                   ref={setVideoElementRef}
-                  autoPlay
                   playsInline
                   muted
                   className="w-full rounded bg-black aspect-video"
@@ -496,7 +495,6 @@ const VideoInterview = () => {
                 <div className="text-gray-300 text-sm mb-2">Live Video</div>
                 <video
                   ref={setVideoElementRef}
-                  autoPlay
                   playsInline
                   muted
                   className="w-full rounded bg-black aspect-video"

@@ -59,7 +59,7 @@ const InterviewSetup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 px-4 py-8 sm:p-6 flex flex-col justify-center">
+    <div className="min-h-[calc(100vh-var(--header-height))] bg-gray-900 text-gray-100 px-4 py-8 sm:p-6 flex flex-col justify-center">
       <motion.h1 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -76,18 +76,20 @@ const InterviewSetup = () => {
         animate="visible"
       >
         {options.map((option, index) => (
-          <motion.div
+          <motion.button
             key={index}
             variants={itemVariants}
             whileHover="hover"
+            whileTap={{ scale: 0.98 }}
             onClick={() => navigate(option.path)}
+            type="button"
             className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-2xl p-8 cursor-pointer 
                       shadow-lg w-full max-w-xs border border-gray-600 flex flex-col items-center
                       relative overflow-hidden"
           >
             {/* Animated background element */}
             <motion.div 
-              className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0"
+              className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 pointer-events-none"
               whileHover={{ opacity: 0.3 }}
               transition={{ duration: 0.5 }}
             />
@@ -120,7 +122,7 @@ const InterviewSetup = () => {
               animate={{ opacity: [0, 0.5, 0], scale: [0.9, 1.05, 1.1] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
             />
-          </motion.div>
+          </motion.button>
         ))}
       </motion.div>
     </div>
