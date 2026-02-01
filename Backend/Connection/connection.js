@@ -10,6 +10,10 @@ const getMongoUri = () => {
 
 const connectDB = async () => {
   try {
+    // Avoid reconnecting if already connected/connecting (important for serverless).
+    if (mongoose.connection.readyState === 1) return true; // connected
+    if (mongoose.connection.readyState === 2) return true; // connecting
+
     const mongoUri = getMongoUri();
     await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 5000,

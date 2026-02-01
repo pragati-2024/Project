@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
+const fs = require("fs");
 const userRoutes = require("./Route/UserRoutes");
 const interviewRoutes = require("./Route/InterviewRoutes");
 const questionRoutes = require("./Route/QuestionRoutes");
@@ -56,13 +57,18 @@ app.use("/api/contact", contactRoutes);
 // Serve frontend build in production
 if (process.env.NODE_ENV === "production") {
   const distPath = path.join(__dirname, "..", "ai-based-project", "dist");
-  app.use(express.static(distPath));
+  const indexHtmlPath = path.join(distPath, "index.html");
 
-  // SPA fallback (avoid intercepting API routes)
-  app.get("/*", (req, res, next) => {
-    if (req.path.startsWith("/api/")) return next();
-    return res.sendFile(path.join(distPath, "index.html"));
-  });
+  // Only enable static serving when the build output exists (helps serverless deploys).
+  if (fs.existsSync(indexHtmlPath)) {
+    app.use(express.static(distPath));
+
+    // SPA fallback (avoid intercepting API routes)
+    app.get("/*", (req, res, next) => {
+      if (req.path.startsWith("/api/")) return next();
+      return res.sendFile(indexHtmlPath);
+    });
+  }
 }
 
 // Health check
@@ -80,7 +86,13 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: err?.message || "Internal Server Error" });
 });
 
-const PORT = process.env.PORT || 5600;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+// Export for serverless platforms (e.g., Vercel Functions)
+module.exports = app;
+
+// Start server only when run directly (keeps local dev behavior)
+if (require.main === module) {
+  const PORT = process.env.PORT || 5600;
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
