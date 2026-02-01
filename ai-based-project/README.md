@@ -2,6 +2,11 @@
 
 React + Vite frontend for the Mock Interview project.
 
+Live:
+
+- Frontend (Vercel): https://project-eta-six-65.vercel.app/
+- Backend API (Render): https://project-emqa.onrender.com/
+
 ## Tech Stack
 
 - React

@@ -83,6 +83,17 @@ If you see a Gemini 404 about `models/<name> is not found`, your model name is o
 
 ## Production
 
+Live deployment:
+
+- Frontend (Vercel): https://project-eta-six-65.vercel.app/
+- Backend (Render): https://project-emqa.onrender.com/
+  - Health check: https://project-emqa.onrender.com/api/health
+
+Hosting notes:
+
+- Frontend is deployed on **Vercel**.
+- Backend API is deployed on **Render**.
+
 - Build frontend: `cd ai-based-project && npm run build`
 - Start backend with `NODE_ENV=production`
 
