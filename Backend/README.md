@@ -36,10 +36,22 @@ Required / recommended:
 - Users: `/api/users/*`
 - Interview (AI):
   - `POST /api/interview/questions`
+  - `POST /api/interview/check-answer`
   - `POST /api/interview/feedback`
 - Question bank:
   - `GET /api/questions/topics`
   - `GET /api/questions/:topic`
+
+## Auth (JWT)
+
+Login/register returns a JWT token. Protected endpoints require:
+
+- Header: `Authorization: Bearer <token>`
+
+Currently protected:
+
+- Interview practice: `POST /api/interview/questions`, `POST /api/interview/check-answer`, `POST /api/interview/feedback`
+- Question bank: `GET /api/questions/topics`, `GET /api/questions/:topic`
 
 ## Production
 
@@ -61,6 +73,13 @@ If you build the frontend at `ai-based-project/dist`, the backend will serve it 
 - Backend generates questions:
   - Gemini if `GEMINI_API_KEY` configured
   - Fallback generator if Gemini not available/fails
+
+For `focusArea: "Technical"`, questions may be returned as objects with answers and reference links:
+
+- `{ question, answer, difficulty?, tags?, references?: [{ label, url }] }`
+
+These references are typically GFG search URLs (1–2 options).
+
 - Frontend collects answers (typed or speech-to-text)
 - Frontend calls `POST /api/interview/feedback` with `{ questions, answers, ...context }`
 - Backend returns placement-oriented feedback + score + tips
@@ -69,3 +88,5 @@ If you build the frontend at `ai-based-project/dist`, the backend will serve it 
 
 - Frontend opens `/questions/:topic`
 - Calls `GET /api/questions/:topic` to fetch curated Q&A (each item includes `question` and `answer`)
+
+Note: these endpoints return `401` if the JWT token is missing/invalid.

@@ -9,6 +9,7 @@ const questionData = [
   { id: 4, name: 'React Notes', description: 'View Interview Questions', category: 'Frontend', image: '../assets/react.png', path: 'react' },
   { id: 5, name: 'Node.js Notes', description: 'View Interview Questions', category: 'Backend', image: '../assets/node-js.png', path: 'node' },
   { id: 9, name: 'Express.js Notes', description: 'View Interview Questions', category: 'Backend', image: '../assets/node-js.png', path: 'express' },
+  { id: 13, name: 'DSA Using Java', description: 'Core DSA + code (Interview)', category: 'Backend', image: '../assets/node-js.png', path: 'dsa-java' },
   { id: 6, name: 'Python Notes', description: 'View Interview Questions', category: 'Backend', image: '../assets/python.png', path: 'python' },
   { id: 7, name: 'DevOps Notes', description: 'View Interview Questions', category: 'DevOps', image: '../assets/devops.png', path: 'devops' },
   { id: 8, name: 'AI/ML Notes', description: 'View Interview Questions', category: 'AI/ML', image: '../assets/ai.png', path: 'ai-ml' },

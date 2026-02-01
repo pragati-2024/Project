@@ -15,7 +15,15 @@ const ChatInterview = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [answerCheck, setAnswerCheck] = useState(null);
   const [isCheckingAnswer, setIsCheckingAnswer] = useState(false);
+  const [showIdealAnswer, setShowIdealAnswer] = useState(false);
   const lastCheckedRef = useRef({ questionIndex: -1, answer: "" });
+
+  const getQuestionText = (item) => {
+    if (!item) return "";
+    if (typeof item === "string") return item;
+    if (typeof item === "object") return String(item.question || item.q || "");
+    return "";
+  };
 
   const isBuiltInCompany = (company) => {
     const normalized = String(company || "").trim().toLowerCase();
@@ -79,7 +87,7 @@ const ChatInterview = () => {
   useEffect(() => {
     let text = "";
     if (interviewStage === "interview" && questions.length > 0) {
-      text = questions[currentQuestionIndex];
+      text = getQuestionText(questions[currentQuestionIndex]);
     } else if (interviewStage === "feedback" && feedback) {
       text = feedback;
     }
@@ -98,9 +106,13 @@ const ChatInterview = () => {
     setIsLoading(true);
     try {
       const useBank = isBuiltInCompany(interviewDetails.company);
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/interview/questions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           company: interviewDetails.company,
           jobRole: interviewDetails.jobRole,
@@ -138,13 +150,14 @@ const ChatInterview = () => {
     if (interviewStage !== "interview") return;
     setCurrentAnswer(answers[currentQuestionIndex] || "");
     setAnswerCheck(null);
+    setShowIdealAnswer(false);
     lastCheckedRef.current = { questionIndex: -1, answer: "" };
   }, [currentQuestionIndex, interviewStage]);
 
   const checkCurrentAnswer = async () => {
     if (isCheckingAnswer) return;
 
-    const question = questions[currentQuestionIndex];
+    const question = getQuestionText(questions[currentQuestionIndex]);
     const answer = String(currentAnswer || "").trim();
     if (!answer) {
       alert("Please provide an answer.");
@@ -161,9 +174,13 @@ const ChatInterview = () => {
 
     setIsCheckingAnswer(true);
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/interview/check-answer", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           company: interviewDetails.company,
           jobRole: interviewDetails.jobRole,
@@ -227,15 +244,19 @@ const ChatInterview = () => {
   const generateFeedback = async (finalAnswers = answers) => {
     setIsLoading(true);
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/interview/feedback", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           company: interviewDetails.company,
           jobRole: interviewDetails.jobRole,
           level: interviewDetails.level,
           focusArea: interviewDetails.focusArea,
-          questions,
+          questions: questions.map(getQuestionText),
           answers: finalAnswers,
         }),
       });
@@ -254,7 +275,7 @@ const ChatInterview = () => {
     } catch (error) {
       console.error("Error generating feedback:", error);
       setFeedback("Failed to generate feedback. Here's a basic analysis:\n\n" +
-        questions.map((q, i) => `Q${i+1}: ${q}\nA: ${finalAnswers[i] || "No answer"}\n`).join("\n"));
+        questions.map((q, i) => `Q${i+1}: ${getQuestionText(q)}\nA: ${finalAnswers[i] || "No answer"}\n`).join("\n"));
       setInterviewStage("feedback");
     } finally {
       setIsLoading(false);
@@ -374,9 +395,56 @@ const ChatInterview = () => {
               </div>
             </div>
             
-            <div className="bg-gray-700 p-4 rounded mb-6 min-h-24 border border-gray-600">
+            <div className="bg-gray-700 p-4 rounded mb-3 min-h-24 border border-gray-600">
               <p className="text-lg">{typingEffect || "Loading question..."}</p>
             </div>
+
+            {(() => {
+              const item = questions[currentQuestionIndex];
+              const ideal = typeof item === "object" ? String(item?.answer || "").trim() : "";
+              const refs =
+                typeof item === "object" && Array.isArray(item?.references)
+                  ? item.references
+                  : [];
+
+              if (!ideal) return null;
+
+              return (
+                <div className="mb-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowIdealAnswer((s) => !s)}
+                    className="text-sm px-3 py-2 rounded bg-gray-700 border border-gray-600 hover:bg-gray-600 transition"
+                  >
+                    {showIdealAnswer ? "Hide" : "Show"} Reference Answer (with GFG links)
+                  </button>
+
+                  {showIdealAnswer && (
+                    <div className="mt-3 bg-gray-700 p-4 rounded border border-gray-600">
+                      {refs.length > 0 && (
+                        <div className="mb-3 text-sm text-gray-200">
+                          <div className="font-semibold mb-1">References (Options)</div>
+                          <div className="flex flex-wrap gap-3">
+                            {refs.slice(0, 2).map((r, idx) => (
+                              <a
+                                key={`${idx}-${r?.url || "ref"}`}
+                                href={String(r?.url || "#")}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="underline text-blue-300 hover:text-blue-200"
+                              >
+                                {String(r?.label || `Option ${idx + 1}`)}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <div className="text-sm text-gray-100 whitespace-pre-wrap">{ideal}</div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
             
             <div className="mb-6">
               <label className="block mb-2 text-gray-300">Your Answer:</label>

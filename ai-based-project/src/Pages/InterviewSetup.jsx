@@ -22,7 +22,7 @@ const InterviewSetup = () => {
       title: "Voice Interview",
       description: "Audio-only conversation",
       icon: "🎙️",
-      path: "/audio-interview"
+      path: "/voice-interview"
     }
   ];
 
@@ -59,18 +59,18 @@ const InterviewSetup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-6 flex flex-col justify-center">
+    <div className="min-h-screen bg-gray-900 text-gray-100 px-4 py-8 sm:p-6 flex flex-col justify-center">
       <motion.h1 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-4xl font-bold text-center mb-16"
+        className="text-3xl sm:text-4xl font-bold text-center mb-10 sm:mb-16"
       >
         Interview Modes
       </motion.h1>
       
       <motion.div 
-        className="max-w-6xl mx-auto flex flex-row justify-center gap-8"
+        className="max-w-6xl mx-auto w-full flex flex-col sm:flex-row justify-center gap-6 sm:gap-8"
         variants={containerVariants}
         initial="hidden"
         animate="visible"

@@ -29,6 +29,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         w-64 md:translate-x-0 ${sidebarOpen ? 'md:w-64' : 'md:w-20'}
       `}
+      style={{
+        top: 'var(--header-height)',
+        height: 'calc(100vh - var(--header-height))',
+      }}
     >
       <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-gray-700">
         {sidebarOpen && <h1 className="text-xl font-bold text-purple-600 dark:text-purple-400">InterviewReady</h1>}

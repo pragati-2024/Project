@@ -15,6 +15,168 @@ const {
   evaluateFallback,
 } = require("../ai/fallback");
 const { getQuestionBank } = require("../ai/questionBank");
+const questionRoutes = require("./QuestionRoutes");
+
+const getQuestionText = (item) => {
+  if (!item) return "";
+  if (typeof item === "string") return item;
+  if (typeof item === "object") return String(item.question || item.q || "");
+  return "";
+};
+
+const getAnswerText = (item) => {
+  if (!item || typeof item !== "object") return "";
+  return String(item.answer || item.a || "");
+};
+
+const makeGfgSearchUrl = (query) =>
+  `https://www.geeksforgeeks.org/?s=${encodeURIComponent(String(query || "").trim())}`;
+
+const withGfgReferences = (item, secondaryQuery) => {
+  const q = getQuestionText(item);
+  const answer = getAnswerText(item);
+  const tags = Array.isArray(item?.tags) ? item.tags : [];
+  const secondary =
+    String(secondaryQuery || "").trim() ||
+    (tags.length ? tags.join(" ") : "") ||
+    q;
+
+  return {
+    question: q,
+    answer,
+    difficulty: item?.difficulty,
+    tags,
+    references: [
+      { label: "GFG (Search)", url: makeGfgSearchUrl(q) },
+      { label: "GFG (Topic)", url: makeGfgSearchUrl(secondary) },
+    ],
+  };
+};
+
+const shuffleInPlace = (arr) => {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
+
+const pickUnique = (pool, count, used) => {
+  const out = [];
+  for (const item of pool) {
+    if (out.length >= count) break;
+    const key = getQuestionText(item).toLowerCase();
+    if (!key) continue;
+    if (used.has(key)) continue;
+    used.add(key);
+    out.push(item);
+  }
+  return out;
+};
+
+const EXTRA_TECHNICAL = [
+  {
+    question: "What is time complexity? Explain Big-O with an example.",
+    answer:
+      "Time complexity describes how runtime grows as input size n grows. Big-O gives an upper bound (worst-case growth rate).\n\nExample:\n- Linear search is O(n) because in worst case you check all elements.\n- Binary search is O(log n) because you halve the search space each step.\n\nIn interviews, also mention space complexity when relevant.",
+    difficulty: "easy",
+    tags: ["dsa", "complexity"],
+  },
+  {
+    question: "Explain HashMap vs HashSet in Java.",
+    answer:
+      "HashMap stores key→value pairs; HashSet stores only unique values (it’s typically backed by a HashMap internally). Use HashMap when you need mapping; use HashSet when you only need fast membership/uniqueness checks. Average-case operations are O(1), but depend on good hashing.",
+    difficulty: "easy",
+    tags: ["java", "collections"],
+  },
+  {
+    question:
+      "What is the difference between ArrayList and LinkedList in Java?",
+    answer:
+      "ArrayList is backed by a dynamic array: fast random access O(1), insert/delete in middle can be O(n) due to shifting. LinkedList is node-based: insert/delete at ends is O(1) (with pointers), but random access is O(n). In practice, ArrayList is more commonly used unless you truly need frequent inserts/removals at known positions.",
+    difficulty: "medium",
+    tags: ["java", "dsa"],
+  },
+  {
+    question: "What is REST? What makes an API RESTful?",
+    answer:
+      "REST is an architectural style for building APIs around resources. A RESTful API typically uses: meaningful resource URLs, standard HTTP methods (GET/POST/PUT/PATCH/DELETE), appropriate status codes, stateless requests, and consistent representations (usually JSON).",
+    difficulty: "easy",
+    tags: ["backend", "http"],
+  },
+  {
+    question: "Explain the difference between PUT and PATCH.",
+    answer:
+      "PUT typically replaces the full resource representation (or is treated as full update), while PATCH applies a partial update. PUT is usually idempotent; PATCH can be idempotent depending on implementation.",
+    difficulty: "easy",
+    tags: ["backend", "http"],
+  },
+  {
+    question:
+      "What is an index in a database and why does it speed up queries?",
+    answer:
+      "An index is a data structure (often a B-tree) that helps the database locate rows faster without scanning the whole table. It speeds up reads for indexed columns, but adds overhead to writes (INSERT/UPDATE/DELETE) because the index must be maintained. Good indexing is about selecting the right columns and avoiding too many indexes.",
+    difficulty: "medium",
+    tags: ["backend", "dbms"],
+  },
+];
+
+const buildTechnicalQuestionSet = ({ count, jobRole, level }) => {
+  const safeCount = Math.max(1, Math.min(20, Number(count) || 5));
+  const bank = (questionRoutes && questionRoutes.QUESTIONS) || {};
+
+  const dsa = Array.isArray(bank["dsa-java"]) ? bank["dsa-java"] : [];
+  const java = Array.isArray(bank["java"]) ? bank["java"] : [];
+  const backend = []
+    .concat(Array.isArray(bank.node) ? bank.node : [])
+    .concat(Array.isArray(bank.express) ? bank.express : [])
+    .concat(Array.isArray(bank.dbms) ? bank.dbms : [])
+    .concat(Array.isArray(bank.os) ? bank.os : [])
+    .concat(Array.isArray(bank.networking) ? bank.networking : []);
+
+  const used = new Set();
+  const out = [];
+
+  const dsaNeed = safeCount >= 5 ? 2 : 1;
+  const backendNeed = safeCount >= 5 ? 2 : Math.max(0, safeCount - dsaNeed - 1);
+  const coreNeed = Math.max(0, safeCount - dsaNeed - backendNeed);
+
+  out.push(...pickUnique(shuffleInPlace([...dsa]), dsaNeed, used));
+  out.push(
+    ...pickUnique(
+      shuffleInPlace([...java, ...EXTRA_TECHNICAL]),
+      coreNeed,
+      used,
+    ),
+  );
+  out.push(
+    ...pickUnique(
+      shuffleInPlace([...backend, ...EXTRA_TECHNICAL]),
+      backendNeed,
+      used,
+    ),
+  );
+
+  // If still short, fill from everything we have.
+  const everything = []
+    .concat(dsa)
+    .concat(java)
+    .concat(backend)
+    .concat(EXTRA_TECHNICAL);
+  out.push(
+    ...pickUnique(
+      shuffleInPlace([...everything]),
+      safeCount - out.length,
+      used,
+    ),
+  );
+
+  const secondaryQuery =
+    `${jobRole || "Software"} ${level || ""} interview technical`.trim();
+  return out
+    .slice(0, safeCount)
+    .map((item) => withGfgReferences(item, secondaryQuery));
+};
 
 const normalizeLines = (text) =>
   String(text || "")
@@ -34,13 +196,25 @@ const normalizeDate = (value) => {
   return new Date();
 };
 
-router.post("/questions", async (req, res) => {
+router.post("/questions", requireAuth, async (req, res) => {
   const { company = "", jobRole, level, focusArea, count } = req.body || {};
 
   if (!jobRole || !level || !focusArea) {
     return res
       .status(400)
       .json({ message: "jobRole, level, focusArea are required" });
+  }
+
+  // For Technical mode we return curated Q&A with references
+  // (so chat/voice/video interview can show ideal answers + GFG links).
+  if (String(focusArea).toLowerCase() === "technical") {
+    const safeCount = Number.isFinite(Number(count)) ? Number(count) : 5;
+    const questions = buildTechnicalQuestionSet({
+      count: safeCount,
+      jobRole,
+      level,
+    });
+    return res.json({ source: "topic-bank", questions });
   }
 
   const bank = getQuestionBank(company);
@@ -92,7 +266,7 @@ router.post("/questions", async (req, res) => {
   }
 });
 
-router.post("/check-answer", async (req, res) => {
+router.post("/check-answer", requireAuth, async (req, res) => {
   const {
     company = "",
     jobRole,
@@ -255,7 +429,7 @@ router.post("/check-answer", async (req, res) => {
   }
 });
 
-router.post("/feedback", async (req, res) => {
+router.post("/feedback", requireAuth, async (req, res) => {
   const {
     company = "",
     jobRole,

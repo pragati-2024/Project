@@ -23,6 +23,7 @@ import VoiceInterview from './Pages/VoiceInterview.jsx';
 import Questions from './Pages/Questions.jsx';
 import { Privacy, Terms, Cookies, GDPR } from './Pages/LegalPage.jsx';
 import { ThemeProvider } from './context/ThemeContext.jsx';
+import RequireAuth from './components/RequireAuth.jsx';
 
 function App() {
   const router = createBrowserRouter([
@@ -36,7 +37,7 @@ function App() {
     },
     {
       path: "/dashboard",
-      element: <><Header/><Dashboard/></>
+      element: <RequireAuth><><Header/><Dashboard/></></RequireAuth>
     },
     {
       path: "/interviewtips",
@@ -52,19 +53,19 @@ function App() {
     },
     {
       path: "/reports",
-      element: <><Header/><Reports/><Footer/></>
+      element: <RequireAuth><><Header/><Reports/><Footer/></></RequireAuth>
     },
     {
       path: "/profile",
-      element: <><Header/><Profile/><Footer/></>
+      element: <RequireAuth><><Header/><Profile/><Footer/></></RequireAuth>
     },
     {
       path: "/question",
-      element: <><Header/><QuestionBank/><Footer/></>
+      element: <RequireAuth><><Header/><QuestionBank/><Footer/></></RequireAuth>
     },
     {
       path: "/settings",
-      element: <><Header/><Settings/><Footer/></>
+      element: <RequireAuth><><Header/><Settings/><Footer/></></RequireAuth>
     },
     {
       path: "/Faq",
@@ -76,23 +77,23 @@ function App() {
     },
     {
       path: "/interviewsetup",
-      element: <><Header/><InterviewSetup/><Footer/></>
+      element: <RequireAuth><><Header/><InterviewSetup/><Footer/></></RequireAuth>
     },
     {
       path: "/chat-interview",
-      element: <><ChatInterview/></>
+      element: <RequireAuth><><ChatInterview/></></RequireAuth>
     },
     {
       path: "/video-interview",
-      element: <><VideoInterview/></>
+      element: <RequireAuth><><VideoInterview/></></RequireAuth>
     },
     {
       path: "/voice-interview",
-      element: <><VoiceInterview/></>
+      element: <RequireAuth><><VoiceInterview/></></RequireAuth>
     },
     {
       path: "/questions/:topic",
-      element: <><Header/><Questions/><Footer/></>
+      element: <RequireAuth><><Header/><Questions/><Footer/></></RequireAuth>
     },
     {
       path: "/privacy",

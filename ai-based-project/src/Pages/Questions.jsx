@@ -58,8 +58,15 @@ const Questions = () => {
       setIsLoading(true);
       setError("");
       try {
-        const response = await fetch(`/api/questions/${encodeURIComponent(topic || "")}`);
+        const token = localStorage.getItem("token");
+        const response = await fetch(`/api/questions/${encodeURIComponent(topic || "")}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
         if (!response.ok) {
+          if (response.status === 401) {
+            navigate("/login", { replace: true });
+            return;
+          }
           const errText = await response.text().catch(() => "");
           throw new Error(errText || `Failed to load questions (${response.status})`);
         }
@@ -74,7 +81,7 @@ const Questions = () => {
     };
 
     run();
-  }, [topic]);
+  }, [topic, navigate]);
 
   return (
     <div className="flex min-h-screen bg-transparent text-slate-900 dark:bg-gray-900 dark:text-white radial-background">

@@ -27,6 +27,7 @@ const VoiceInterview = () => {
   const [answerCheck, setAnswerCheck] = useState(null); // { index, answer, feedback, source }
   const [isChecking, setIsChecking] = useState(false);
   const [answerStructure, setAnswerStructure] = useState(null); // { title, template }
+  const [showIdealAnswer, setShowIdealAnswer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [interviewStage, setInterviewStage] = useState("setup");
   const [feedback, setFeedback] = useState("");
@@ -111,6 +112,23 @@ const VoiceInterview = () => {
   }, []);
 
   const normalizeText = (value) => String(value || "").replace(/\s+/g, " ").trim();
+
+  const getQuestionText = (item) => {
+    if (!item) return "";
+    if (typeof item === "string") return item;
+    if (typeof item === "object") return String(item.question || item.q || "");
+    return "";
+  };
+
+  const getIdealAnswer = (item) => {
+    if (!item || typeof item !== "object") return "";
+    return String(item.answer || item.a || "").trim();
+  };
+
+  const getReferences = (item) => {
+    if (!item || typeof item !== "object") return [];
+    return Array.isArray(item.references) ? item.references : [];
+  };
 
   const normalizeCompany = (value) => normalizeText(value).toLowerCase();
 
@@ -437,7 +455,7 @@ const VoiceInterview = () => {
   };
 
   const provideInstantHelp = (reason) => {
-    const q = questions[currentQuestionIndex];
+    const q = getQuestionText(questions[currentQuestionIndex]);
     if (!q) return;
     if (lastHelpQuestionIndexRef.current === currentQuestionIndex) return;
     lastHelpQuestionIndexRef.current = currentQuestionIndex;
@@ -461,15 +479,19 @@ const VoiceInterview = () => {
   };
 
   const checkCurrentAnswer = async () => {
-    const q = questions[currentQuestionIndex];
+    const q = getQuestionText(questions[currentQuestionIndex]);
     const a = normalizeText(currentAnswer);
     if (!q || !a) return null;
 
     setIsChecking(true);
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/interview/check-answer", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           company: interviewDetails.company,
           jobRole: interviewDetails.jobRole,
@@ -734,9 +756,11 @@ const VoiceInterview = () => {
   useEffect(() => {
     if (interviewStage !== "interview") return;
     const q = questions[currentQuestionIndex];
-    if (!q) return;
-    setAnswerStructure(buildAnswerStructure(q));
-    if (autoPlayVoice) speakQuestion(q);
+    const qText = getQuestionText(q);
+    if (!qText) return;
+    setAnswerStructure(buildAnswerStructure(qText));
+    setShowIdealAnswer(false);
+    if (autoPlayVoice) speakQuestion(qText);
   }, [interviewStage, questions, currentQuestionIndex, autoPlayVoice]);
 
   const handleDetailChange = (field, value) => {
@@ -785,9 +809,13 @@ const VoiceInterview = () => {
     setIsLoading(true);
     try {
       const useBank = isBuiltInCompany(interviewDetails.company);
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/interview/questions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           company: interviewDetails.company,
           jobRole: interviewDetails.jobRole,
@@ -812,12 +840,13 @@ const VoiceInterview = () => {
       setInterviewStage("interview");
       setAssistantHelp(null);
       setAnswerCheck(null);
-      setAnswerStructure(qs[0] ? buildAnswerStructure(qs[0]) : null);
+      setAnswerStructure(qs[0] ? buildAnswerStructure(getQuestionText(qs[0])) : null);
+      setShowIdealAnswer(false);
       lastHelpQuestionIndexRef.current = -1;
       lastCheckedAnswerRef.current = "";
 
       // Speak first question immediately after starting (user gesture context)
-      if (autoPlayVoice) speakQuestion(qs[0]);
+      if (autoPlayVoice) speakQuestion(getQuestionText(qs[0]));
     } catch (error) {
       console.error("Error generating questions:", error);
       alert("Failed to start voice interview. Please try again.");
@@ -857,23 +886,28 @@ const VoiceInterview = () => {
       setCurrentQuestionIndex(nextIndex);
       setAssistantHelp(null);
       setAnswerCheck(null);
+      setShowIdealAnswer(false);
       // Speak next question during the click gesture (more reliable than autoplay)
-      if (autoPlayVoice) speakQuestion(questions[nextIndex]);
+      if (autoPlayVoice) speakQuestion(getQuestionText(questions[nextIndex]));
     }
   };
 
   const generateFeedback = async () => {
     setIsLoading(true);
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/interview/feedback", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           company: interviewDetails.company,
           jobRole: interviewDetails.jobRole,
           level: interviewDetails.level,
           focusArea: interviewDetails.focusArea,
-          questions,
+          questions: questions.map(getQuestionText),
           answers,
         }),
       });
@@ -893,7 +927,7 @@ const VoiceInterview = () => {
       setFeedback(
         "Failed to generate feedback. Here's a basic analysis:\n\n" +
           questions
-            .map((q, i) => `Q${i + 1}: ${q}\nA: ${answers[i] || "No answer"}\n`)
+            .map((q, i) => `Q${i + 1}: ${getQuestionText(q)}\nA: ${answers[i] || "No answer"}\n`)
             .join("\n"),
       );
       setInterviewStage("feedback");
@@ -1044,12 +1078,54 @@ const VoiceInterview = () => {
             </div>
 
             <div className="bg-gray-700 p-4 rounded mb-6 min-h-24 border border-gray-600">
-              <p className="text-lg">{questions[currentQuestionIndex]}</p>
+              <p className="text-lg">{getQuestionText(questions[currentQuestionIndex])}</p>
             </div>
+
+            {(() => {
+              const item = questions[currentQuestionIndex];
+              const ideal = getIdealAnswer(item);
+              const refs = getReferences(item);
+              if (!ideal) return null;
+
+              return (
+                <div className="mb-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowIdealAnswer((s) => !s)}
+                    className="text-sm px-3 py-2 rounded bg-gray-700 border border-gray-600 hover:bg-gray-600 transition"
+                  >
+                    {showIdealAnswer ? "Hide" : "Show"} Reference Answer (with GFG links)
+                  </button>
+                  {showIdealAnswer && (
+                    <div className="mt-3 bg-gray-700 p-4 rounded border border-gray-600">
+                      {refs.length > 0 && (
+                        <div className="mb-3 text-sm text-gray-200">
+                          <div className="font-semibold mb-1">References (Options)</div>
+                          <div className="flex flex-wrap gap-3">
+                            {refs.slice(0, 2).map((r, idx) => (
+                              <a
+                                key={`${idx}-${r?.url || "ref"}`}
+                                href={String(r?.url || "#")}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="underline text-blue-300 hover:text-blue-200"
+                              >
+                                {String(r?.label || `Option ${idx + 1}`)}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <div className="text-sm text-gray-100 whitespace-pre-wrap">{ideal}</div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             <div className="mb-4 flex gap-3">
               <button
-                onClick={() => speakQuestion(questions[currentQuestionIndex])}
+                onClick={() => speakQuestion(getQuestionText(questions[currentQuestionIndex]))}
                 className="bg-gray-600 px-4 py-2 rounded hover:bg-gray-500 transition-colors"
               >
                 {isSpeaking ? "Speaking..." : "Speak Question"}
@@ -1322,7 +1398,8 @@ const VoiceInterview = () => {
                   onClick={() => {
                     const prevIndex = currentQuestionIndex - 1;
                     setCurrentQuestionIndex(prevIndex);
-                    speakQuestion(questions[prevIndex]);
+                    setShowIdealAnswer(false);
+                    speakQuestion(getQuestionText(questions[prevIndex]));
                   }}
                   className="flex-1 bg-gray-600 py-2 rounded hover:bg-gray-500 transition-colors"
                 >

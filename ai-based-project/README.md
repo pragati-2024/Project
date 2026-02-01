@@ -48,6 +48,16 @@ Vite will start on `http://localhost:5173` (or next free port).
 - `/question` (Question Bank list)
 - `/questions/:topic` (topic questions)
 
+## Login Required (Protected Routes)
+
+These routes require login. If `localStorage.token` is missing, the app redirects to `/login`.
+
+- Interview practice: `/interviewsetup`, `/chat-interview`, `/video-interview`, `/voice-interview`
+- Question bank: `/question`, `/questions/:topic`
+- App pages: `/dashboard`, `/reports`, `/profile`, `/settings`
+
+When logged in, the frontend sends `Authorization: Bearer <token>` for protected `/api/*` calls.
+
 ## Notes
 
 - Do not put API keys in the frontend.
@@ -64,6 +74,9 @@ Vite will start on `http://localhost:5173` (or next free port).
 
 - Frontend requests questions from backend:
   - `POST /api/interview/questions`
+- Some focus areas (like `Technical`) may return question objects:
+  - `{ question, answer, difficulty?, tags?, references?: [{ label, url }] }`
+  - UI can show a "Reference Answer" panel and up to 2 GFG search links.
 - Candidate answers:
   - Chat/Video: type answers
   - Voice: type or use speech-to-text; questions are also spoken via TTS

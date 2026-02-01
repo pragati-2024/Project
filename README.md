@@ -33,6 +33,17 @@ This repository contains a full-stack mock interview platform.
 4. Question bank flow:
    - `/api/questions/:topic` returns curated questions per topic
 
+## Access Control (Login Required)
+
+The following features are now protected and require a valid JWT token:
+
+- Interview Practice (Chat/Video/Voice)
+- Question Bank (topics + questions)
+
+If a user is not logged in, the frontend redirects to `/login`.
+
+Backend endpoints for these features return `401` when the token is missing/invalid.
+
 ## Run Locally (Dev)
 
 ### 1) Backend
@@ -79,3 +90,7 @@ Backend serves `ai-based-project/dist` automatically in production mode.
 - Do NOT put Gemini keys in frontend.
 - Configure backend `.env` with `GEMINI_API_KEY` to enable real Gemini output.
 - `legacy-static/` is optional and not used by the SPA.
+
+## UI Notes
+
+- Social icons are rendered via `react-icons` (Font Awesome CDN is not required).

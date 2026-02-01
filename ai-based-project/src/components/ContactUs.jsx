@@ -1,4 +1,12 @@
 import React, { useMemo, useState } from 'react';
+import {
+  FaClock,
+  FaEnvelope,
+  FaMapMarkedAlt,
+  FaPaperPlane,
+  FaUserGraduate
+} from 'react-icons/fa';
+import { FaBuildingColumns } from 'react-icons/fa6';
 
 const ContactUs = () => {
   const [form, setForm] = useState({
@@ -73,23 +81,23 @@ const ContactUs = () => {
             </h3>
             <div className="space-y-5">
               <div className="flex items-start gap-4 group">
-                <i className="fas fa-user-graduate text-purple-400 mt-1"></i>
+                <FaUserGraduate className="text-purple-400 mt-1" aria-hidden="true" />
                 <p><strong>Team:</strong> Mocknet Developers</p>
               </div>
               <div className="flex items-start gap-4 group">
-                <i className="fas fa-envelope text-purple-400 mt-1"></i>
+                <FaEnvelope className="text-purple-400 mt-1" aria-hidden="true" />
                 <p><strong>Email:</strong> <a href="mailto:mocknet@university.edu" className="text-blue-400 hover:underline">mocknet@university.edu</a></p>
               </div>
               <div className="flex items-start gap-4 group">
-                <i className="fas fa-building-columns text-purple-400 mt-1"></i>
+                <FaBuildingColumns className="text-purple-400 mt-1" aria-hidden="true" />
                 <p><strong>Department:</strong> Computer Science</p>
               </div>
               <div className="flex items-start gap-4 group">
-                <i className="fas fa-map-marked-alt text-purple-400 mt-1"></i>
+                <FaMapMarkedAlt className="text-purple-400 mt-1" aria-hidden="true" />
                 <p><strong>Campus Location:</strong> LPU , GLA</p>
               </div>
               <div className="flex items-start gap-4 group">
-                <i className="fas fa-clock text-purple-400 mt-1"></i>
+                <FaClock className="text-purple-400 mt-1" aria-hidden="true" />
                 <p><strong>Hours:</strong> Mon-Fri, 10AM-6PM</p>
               </div>
             </div>
@@ -168,7 +176,7 @@ const ContactUs = () => {
                 disabled={!canSubmit || isSubmitting}
                 className="w-full py-3 rounded bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold hover:scale-105 transition-transform shadow-lg disabled:opacity-60 disabled:hover:scale-100"
               >
-                <i className="fas fa-paper-plane mr-2"></i>
+                <FaPaperPlane className="inline-block mr-2" aria-hidden="true" />
                 {isSubmitting ? 'Sending…' : 'Send Message'}
               </button>
             </form>

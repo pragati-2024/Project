@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 
 const InterviewTipsPage = () => {
   const [activeModal, setActiveModal] = useState(null);
@@ -83,6 +82,16 @@ const InterviewTipsPage = () => {
               "Question - Define the key question to answer",
               "Hypothesis - Propose a solution path"
             ]
+          },
+          {
+            title: "How to Use It in 60 Seconds:",
+            points: [
+              "Repeat the problem back in your own words to confirm scope",
+              "Ask 1–2 clarifying questions (constraints, success metric, timeline)",
+              "Propose a hypothesis early: 'I think the issue is likely X or Y'",
+              "Break the problem into 3–5 buckets (MECE-style) and tackle one by one",
+              "Close with a crisp recommendation + next steps"
+            ]
           }
         ]
       }
@@ -124,6 +133,25 @@ const InterviewTipsPage = () => {
               "Think aloud: Narrate your thought process - interviewers can't help if they don't know where you're stuck",
               "Ask strategic questions: 'Would focusing on the data structure first be appropriate here?'",
               "Admit knowledge gaps: 'I'm not familiar with X algorithm, but here's how I'd approach it conceptually...'"
+            ]
+          },
+          {
+            title: "What Interviewers Actually Score:",
+            points: [
+              "Problem understanding and assumptions",
+              "Approach selection (why this algorithm/data structure)",
+              "Complexity awareness (time/space) and trade-offs",
+              "Correctness (edge cases, invariants)",
+              "Communication + ability to course-correct"
+            ]
+          },
+          {
+            title: "Quick Recovery Script:",
+            points: [
+              "'Let me state the constraints and edge cases first.'",
+              "'I’ll implement a working baseline solution, then optimize.'",
+              "'I think there’s a more optimal approach using X—can I pivot to it?'",
+              "'I’d like to test with a small input to validate the logic.'"
             ]
           }
         ]
@@ -188,6 +216,91 @@ const InterviewTipsPage = () => {
               "Willingness to take calculated risks",
               "Capacity to learn from failure"
             ]
+          },
+          {
+            title: "A Simple Answer Template (C-R-A-F-T):",
+            points: [
+              "Context - what problem you faced",
+              "Rethink - what assumption you challenged",
+              "Alternatives - 2–3 options you explored",
+              "Final - what you chose and why",
+              "Takeaway - what you learned and how you'd apply it again"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      id: 'stress',
+      category: "Stress Management",
+      title: "Anxiety to Advantage: Control Nerves in 90 Seconds",
+      excerpt: "A simple pre-interview routine to stop shaking, blanking out, and rushing your answers.",
+      img: "https://images.unsplash.com/photo-1527137342181-19aab11a8ee8?auto=format&fit=crop&w=1350&q=80",
+      content: {
+        description:
+          "Feeling nervous is normal. The goal is not to remove stress—it’s to control the symptoms so you can think clearly and communicate with confidence.",
+        sections: [
+          {
+            title: "The 90-Second Reset:",
+            points: [
+              "Box breathing: inhale 4s, hold 4s, exhale 4s, hold 4s (repeat 3 times)",
+              "Grounding: identify 5 things you can see, 4 you can feel, 3 you can hear",
+              "Slow your first sentence on purpose—this sets your pace",
+              "Sip water and roll your shoulders to release tension",
+              "Replace 'I’m nervous' with 'I’m energized' (reframing reduces panic)"
+            ]
+          },
+          {
+            title: "When You Blank Out Mid-Answer:",
+            points: [
+              "Pause (2–3 seconds). Don’t apologize repeatedly",
+              "Say: 'Let me structure this.' Then use STAR or 3-bullet points",
+              "Ask a clarifying question if appropriate",
+              "If needed: 'I’d like to circle back to that—can we move to the next part?'"
+            ]
+          },
+          {
+            title: "Night-Before Checklist:",
+            points: [
+              "Prepare 5 STAR stories (conflict, failure, leadership, impact, learning)",
+              "Print or save your resume + job description",
+              "Test mic/camera + internet; set a backup hotspot plan",
+              "Pick an outfit and reduce morning decisions"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      id: 'system-design',
+      category: "Technical",
+      title: "System Design Answers That Sound Senior",
+      excerpt: "A repeatable structure for APIs, scaling, and trade-offs—even if you’re not a "
+        + "system design expert yet.",
+      img: "https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1350&q=80",
+      content: {
+        description:
+          "In system design, clarity beats complexity. Interviewers want to see your ability to define requirements, propose a simple design, then evolve it with trade-offs and bottlenecks.",
+        sections: [
+          {
+            title: "The 6-Step System Design Flow:",
+            points: [
+              "Requirements: functional + non-functional (latency, throughput, availability)",
+              "High-level architecture: clients, API, services, data stores",
+              "Data model: entities, indexes, relationships",
+              "Scaling strategy: caching, read replicas, sharding, queues",
+              "Reliability: rate limiting, retries, idempotency, monitoring",
+              "Trade-offs: what you optimize for and what you accept"
+            ]
+          },
+          {
+            title: "Golden Phrases (Use Naturally):",
+            points: [
+              "'Let’s start with a simple design, then iterate for scale.'",
+              "'The bottleneck here is likely the database writes.'",
+              "'We can improve latency with caching, but we need an invalidation strategy.'",
+              "'I’d add observability: logs, metrics, tracing, and alerts.'"
+            ]
           }
         ]
       }
@@ -210,21 +323,8 @@ const InterviewTipsPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#2c1b4e] via-[#110b23] to-[#0a061b] text-[#e6f1ff]">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 w-full flex justify-between items-center py-3 px-8 bg-[rgba(255,255,255,0.05)] backdrop-blur-md border-b border-[rgba(255,255,255,0.1)] shadow-lg z-50">
-        <div className="text-2xl font-bold text-white">Mockneto</div>
-        <nav className="flex items-center space-x-6">
-          <Link to="/" className="text-white hover:text-[#b78be6] transition">Home</Link>
-          <Link to="/dashboard" className="text-white hover:text-[#b78be6] transition">Practice Interview</Link>
-          <Link to="/interviewtips" className="text-white hover:text-[#b78be6] transition">Interview Tips</Link>
-          <Link to="/contactus" className="text-white hover:text-[#b78be6] transition">Contact Us</Link>
-          <Link to="/aboutus" className="text-white hover:text-[#b78be6] transition">About Us</Link>
-          <Link to="/login" className="bg-gradient-to-r from-[#6648de] to-[#6a7ae7] text-white px-5 py-2 rounded-lg font-semibold hover:opacity-90 transition">Login</Link>
-        </nav>
-      </header>
-
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6 text-center relative overflow-hidden border-b border-[#1e2a47]">
+      <section className="pt-16 pb-16 px-6 text-center relative overflow-hidden border-b border-[#1e2a47]">
         <div className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(123,97,255,0.3),transparent_70%)] blur-[100px] pointer-events-none"></div>
         
         <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#9d7aff] to-[#64ffda] text-transparent bg-clip-text mb-4 animate-fadeInDown">
