@@ -193,9 +193,15 @@ body {
 }
 
 .links {
-  display: flex;
+  display: none;
   gap: 25px;
   align-items: center;
+}
+
+@media (min-width: 769px) {
+  .links {
+    display: flex;
+  }
 }
 
 .links a {
