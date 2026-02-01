@@ -81,15 +81,15 @@ function App() {
     },
     {
       path: "/chat-interview",
-      element: <RequireAuth><><ChatInterview/></></RequireAuth>
+      element: <RequireAuth><><Header/><ChatInterview/></></RequireAuth>
     },
     {
       path: "/video-interview",
-      element: <RequireAuth><><VideoInterview/></></RequireAuth>
+      element: <RequireAuth><><Header/><VideoInterview/></></RequireAuth>
     },
     {
       path: "/voice-interview",
-      element: <RequireAuth><><VoiceInterview/></></RequireAuth>
+      element: <RequireAuth><><Header/><VoiceInterview/></></RequireAuth>
     },
     {
       path: "/questions/:topic",

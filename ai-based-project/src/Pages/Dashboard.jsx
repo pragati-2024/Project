@@ -3,11 +3,34 @@ import { useNavigate } from 'react-router-dom'
 import TypingText from '../components/TypingText.jsx'
 import StartInterviewButton from '../components/StartInterviewButton.jsx'
 import Sidebar from '../components/Sidebar.jsx'
+import { FiMenu } from 'react-icons/fi'
 
 const Dashboard = () => {
   const navigate = useNavigate()
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    try {
+      return window.matchMedia && window.matchMedia('(min-width: 768px)').matches;
+    } catch {
+      return true;
+    }
+  });
   const [interviewFeedback, setFeedbackHistory] = useState([]);
+
+  useEffect(() => {
+    const mq = window.matchMedia ? window.matchMedia('(min-width: 768px)') : null;
+    if (!mq) return;
+    const handler = (e) => {
+      // Auto-close on mobile, auto-open on desktop
+      setSidebarOpen(e.matches);
+    };
+    try {
+      mq.addEventListener('change', handler);
+      return () => mq.removeEventListener('change', handler);
+    } catch {
+      mq.addListener(handler);
+      return () => mq.removeListener(handler);
+    }
+  }, []);
 
   useEffect(() => {
     const run = async () => {
@@ -77,6 +100,18 @@ const Dashboard = () => {
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className={`flex-1 p-4 sm:p-6 md:p-8 transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}>
+        <div className="md:hidden flex items-center justify-between mb-4">
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 border border-slate-200/20 dark:border-white/10"
+            aria-label="Open sidebar"
+          >
+            <FiMenu size={18} />
+            <span className="text-sm font-semibold">Menu</span>
+          </button>
+        </div>
+
         <div className="mb-12 text-center">
           <TypingText phrases={['Ready for interview', 'Practice makes perfect', 'Ace your next interview']} />
         </div>
