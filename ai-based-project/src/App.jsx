@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Home from "./Pages/Home.jsx";
 import InterviewTips from "./components/InterviewTips.jsx";
 import Header from "./components/header.jsx";
@@ -26,6 +26,38 @@ import { ThemeProvider } from './context/ThemeContext.jsx';
 import RequireAuth from './components/RequireAuth.jsx';
 
 function App() {
+  // Warm up Render backend as soon as someone opens the frontend.
+  // This reduces first-click failures (e.g., Google login) during cold starts.
+  const didWarmupRef = useRef(false);
+
+  useEffect(() => {
+    // React.StrictMode in dev can run effects twice; avoid double-pinging.
+    if (didWarmupRef.current) return;
+    didWarmupRef.current = true;
+
+    const controller = new AbortController();
+    const timeoutMs = 25000;
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    // Use relative '/api' so it works with:
+    // - Vite proxy in dev (vite.config.js)
+    // - Vercel rewrites in prod (vercel.json)
+    fetch('/api/health', {
+      method: 'GET',
+      cache: 'no-store',
+      signal: controller.signal,
+    }).catch(() => {
+      // Ignore warmup errors; real API calls will handle user-facing errors.
+    }).finally(() => {
+      clearTimeout(timeoutId);
+    });
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, []);
+
   const router = createBrowserRouter([
     {
       path: "/",

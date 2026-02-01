@@ -8,7 +8,8 @@ const API = axios.create({
     'Content-Type': 'application/json'
   },
   withCredentials: true,
-  timeout: 10000,
+  // Render free-tier cold starts can exceed 10s.
+  timeout: 30000,
 });
 
 // Request interceptor
