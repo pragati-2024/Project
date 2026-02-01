@@ -82,6 +82,12 @@ app.get("/api/health", (req, res) => {
 
 // Error handling
 app.use((err, req, res, next) => {
+  if (err?.message === "Not allowed by CORS") {
+    return res.status(403).json({
+      message: "CORS blocked this origin",
+      origin: req.headers.origin || null,
+    });
+  }
   console.error(err.stack);
   res.status(500).json({ message: err?.message || "Internal Server Error" });
 });
