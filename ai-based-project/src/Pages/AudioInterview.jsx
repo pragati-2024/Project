@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 
 const AudioInterview = () => {
   const [interviewDetails, setInterviewDetails] = useState({
     company: "",
     jobRole: "Software Engineer",
     level: "mid",
-    focusArea: "technical"
+    focusArea: "Technical",
   });
 
   const [questions, setQuestions] = useState([]);
@@ -22,47 +22,48 @@ const AudioInterview = () => {
   const mediaRecorderRef = useRef(null);
   const audioRef = useRef(null);
 
-  // Generate interview questions using Gemini API
+  const getToken = () => {
+    const token = localStorage.getItem("token");
+    return token && token.trim() ? token.trim() : null;
+  };
+
+  const getQuestionText = (item) => {
+    if (typeof item === "string") return item;
+    return item?.question ? String(item.question) : "";
+  };
+
+  // Generate interview questions via backend (do not call Gemini from frontend)
   const generateQuestions = async () => {
     setIsLoading(true);
     try {
-      const prompt = `Generate exactly 5 interview questions for a ${interviewDetails.level}-level ${interviewDetails.jobRole} position${
-        interviewDetails.company ? ` at ${interviewDetails.company}` : ""
-      }. Focus on ${interviewDetails.focusArea} aspects. Return only the questions, one per line, without numbering.`;
+      const token = getToken();
+      if (!token) {
+        alert("Please login to start the interview.");
+        return;
+      }
 
-      const API_KEY = "REDACTED_GEMINI_API_KEY"; // Replace with your actual API key
-      const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
-
-      const response = await fetch(API_URL, {
+      const response = await fetch("/api/interview/questions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.5,
-            maxOutputTokens: 2000
-          }
-        })
+          company: interviewDetails.company,
+          jobRole: interviewDetails.jobRole,
+          level: interviewDetails.level,
+          focusArea: interviewDetails.focusArea,
+          count: 5,
+        }),
       });
 
       if (!response.ok) {
         throw new Error(`API request failed with status ${response.status}`);
       }
 
-      const data = await response.json();
-      const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-      const qs = generatedText
-        .split("\n")
-        .map(q => q.replace(/^\d+\.?\s*/, "").trim())
-        .filter(q => q.length > 0)
-        .slice(0, 5);
+      const data = await response.json().catch(() => ({}));
+      const qsRaw = Array.isArray(data?.questions) ? data.questions : [];
+      const qs = qsRaw.map(getQuestionText).filter(Boolean).slice(0, 5);
 
       if (qs.length === 0) {
         throw new Error("No questions generated");
@@ -160,59 +161,44 @@ const AudioInterview = () => {
     }
   };
 
-  // Generate feedback using Gemini API
+  // Generate feedback via backend (no frontend API keys)
   const generateFeedback = async () => {
     setIsLoading(true);
     try {
-      // Convert audio blobs to text (this would normally use a speech-to-text API)
-      // For demo purposes, we'll just note that audio answers were recorded
-      const prompt = `Act as an interview coach. Provide detailed feedback for this audio interview:
-      
-      Job Role: ${interviewDetails.jobRole}
-      Experience Level: ${interviewDetails.level}
-      Focus Area: ${interviewDetails.focusArea}
-      
-      Questions:
-      ${questions.map((q, i) => `${i+1}. ${q}`).join("\n")}
-      
-      The candidate provided audio answers to each question.
-      
-      Provide feedback on:
-      1. Likely content based on question context
-      2. Speaking skills (pace, clarity, confidence)
-      3. Areas for improvement
-      4. Overall rating out of 10
-      5. Suggested next steps`;
+      const token = getToken();
+      if (!token) {
+        alert("Please login to generate feedback.");
+        return;
+      }
 
-      const API_KEY = "REDACTED_GEMINI_API_KEY"; // Replace with your actual API key
-      const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+      const answers = questions.map((_, i) =>
+        audioURLs[i]
+          ? `Audio answer recorded (local playback URL): ${audioURLs[i]}`
+          : "Audio answer recorded",
+      );
 
-      const response = await fetch(API_URL, {
+      const response = await fetch("/api/interview/feedback", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 2000
-          }
-        })
+          company: interviewDetails.company,
+          jobRole: interviewDetails.jobRole,
+          level: interviewDetails.level,
+          focusArea: interviewDetails.focusArea,
+          questions,
+          answers,
+        }),
       });
 
       if (!response.ok) {
         throw new Error(`API request failed with status ${response.status}`);
       }
 
-      const data = await response.json();
-      const generatedFeedback = data.candidates?.[0]?.content?.parts?.[0]?.text || "No feedback generated";
-
-      setFeedback(generatedFeedback);
+      const data = await response.json().catch(() => ({}));
+      setFeedback(String(data?.feedback || "No feedback generated"));
       setInterviewStage("feedback");
     } catch (error) {
       console.error("Error generating feedback:", error);
