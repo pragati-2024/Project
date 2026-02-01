@@ -1,4 +1,11 @@
-const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
+
+const normalizeModelName = (model) => {
+  if (!model) return DEFAULT_MODEL;
+  return String(model)
+    .trim()
+    .replace(/^models\//i, "");
+};
 
 const isFetchAvailable = () => typeof fetch === "function";
 
@@ -18,7 +25,8 @@ const callGeminiText = async ({
     };
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${DEFAULT_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const model = normalizeModelName(process.env.GEMINI_MODEL);
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
   const response = await fetch(url, {
     method: "POST",

@@ -24,6 +24,7 @@ Required / recommended:
 - `JWT_SECRET=...`
 - `FRONTEND_ORIGIN=http://localhost:5173,http://localhost:5174` (optional)
 - `GEMINI_API_KEY=...` (optional; if missing, server uses fallback logic)
+- `GEMINI_MODEL=gemini-flash-latest` (optional; recommended if you override models)
 
 3. Run:
 
@@ -90,3 +91,8 @@ These references are typically GFG search URLs (1–2 options).
 - Calls `GET /api/questions/:topic` to fetch curated Q&A (each item includes `question` and `answer`)
 
 Note: these endpoints return `401` if the JWT token is missing/invalid.
+
+## Troubleshooting (Gemini)
+
+- If you see: `Gemini API 404: models/<name> is not found...`, your `GEMINI_MODEL` is not supported for the current API.
+- Fix: set `GEMINI_MODEL=gemini-flash-latest` (or another model returned by the ListModels API) and restart the backend.

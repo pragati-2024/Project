@@ -77,6 +77,9 @@ Vite proxies `/api` → `http://localhost:5600`
 - Backend uses `.env` for secrets (keep it private, don’t commit).
 - Use `Backend/.env.example` as the template.
 - Optional AI: set `GEMINI_API_KEY` in backend `.env` (frontend never stores keys).
+- Optional model override: `GEMINI_MODEL=gemini-flash-latest`.
+
+If you see a Gemini 404 about `models/<name> is not found`, your model name is outdated; switch `GEMINI_MODEL` to a supported model (e.g. `gemini-flash-latest`) and restart the backend.
 
 ## Production
 

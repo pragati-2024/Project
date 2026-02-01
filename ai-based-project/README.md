@@ -62,6 +62,7 @@ When logged in, the frontend sends `Authorization: Bearer <token>` for protected
 
 - Do not put API keys in the frontend.
 - Gemini key should be configured on the backend as `GEMINI_API_KEY`.
+- If Gemini calls fail with a 404 model error, update backend `GEMINI_MODEL` to `gemini-flash-latest` and restart the backend.
 
 ## End-to-End Flows
 
