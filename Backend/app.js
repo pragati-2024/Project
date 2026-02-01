@@ -12,6 +12,12 @@ const connectDB = require("./Connection/connection");
 
 const app = express();
 
+// Allow OAuth popup flows (Google) to communicate via postMessage.
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  next();
+});
+
 // Middleware
 const allowedOrigins = (process.env.FRONTEND_ORIGIN || "")
   .split(",")
@@ -32,7 +38,7 @@ app.use(
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 
 app.use(express.json());
@@ -53,11 +59,10 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static(distPath));
 
   // SPA fallback (avoid intercepting API routes)
-app.get("/*", (req, res, next) => {
-  if (req.path.startsWith("/api/")) return next();
-  return res.sendFile(path.join(distPath, "index.html"));
-});
-
+  app.get("/*", (req, res, next) => {
+    if (req.path.startsWith("/api/")) return next();
+    return res.sendFile(path.join(distPath, "index.html"));
+  });
 }
 
 // Health check

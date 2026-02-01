@@ -84,11 +84,52 @@ body {
   .hero-wrapper {
     padding: 70px 5%;
     gap: 20px;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .hero-title {
     font-size: 34px;
     min-height: unset;
+    display: block;
+  }
+
+  .dynamic-wrapper {
+    white-space: normal;
+    overflow: visible;
+  }
+
+  .changing-text {
+    min-width: 0;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .hero-image {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .hero-image img {
+    width: min(330px, 90vw);
+    height: auto;
+  }
+
+  .stats-section {
+    flex-wrap: wrap;
+    gap: 28px;
+    padding: 20px 5%;
+  }
+
+  .stat-value {
+    font-size: 42px;
+    margin-block-end: 10px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
   }
 
   .hero-subtext {
