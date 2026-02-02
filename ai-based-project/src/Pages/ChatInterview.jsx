@@ -310,41 +310,41 @@ const ChatInterview = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-var(--header-height))] bg-gray-900 text-gray-100 p-4 md:p-6">
+    <div className="min-h-[calc(100vh-var(--header-height))] bg-transparent text-slate-900 dark:bg-gray-900 dark:text-gray-100 p-4 md:p-6 radial-background">
       <div className="max-w-4xl mx-auto">
         {interviewStage === "setup" && (
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+          <div className="bg-white/70 dark:bg-gray-800 p-6 rounded-lg shadow-lg border border-slate-200/70 dark:border-gray-700 backdrop-blur">
             <h1 className="text-2xl font-bold mb-6 text-center">Interview Simulator</h1>
             
             <div className="grid gap-4 mb-6">
               <div>
-                <label className="block mb-2 text-gray-300">Company (optional)</label>
+                <label className="block mb-2 text-slate-600 dark:text-gray-300">Company (optional)</label>
                 <input
                   type="text"
                   placeholder="e.g. Google, Amazon"
                   value={interviewDetails.company}
                   onChange={(e) => handleDetailChange("company", e.target.value)}
-                  className="w-full p-3 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  className="w-full p-3 bg-white/80 dark:bg-gray-700 rounded border border-slate-200 dark:border-gray-600 focus:border-blue-500 focus:outline-none"
                 />
               </div>
               
               <div>
-                <label className="block mb-2 text-gray-300">Job Role</label>
+                <label className="block mb-2 text-slate-600 dark:text-gray-300">Job Role</label>
                 <input
                   type="text"
                   placeholder="e.g. Frontend Developer"
                   value={interviewDetails.jobRole}
                   onChange={(e) => handleDetailChange("jobRole", e.target.value)}
-                  className="w-full p-3 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  className="w-full p-3 bg-white/80 dark:bg-gray-700 rounded border border-slate-200 dark:border-gray-600 focus:border-blue-500 focus:outline-none"
                 />
               </div>
               
               <div>
-                <label className="block mb-2 text-gray-300">Experience Level</label>
+                <label className="block mb-2 text-slate-600 dark:text-gray-300">Experience Level</label>
                 <select
                   value={interviewDetails.level}
                   onChange={(e) => handleDetailChange("level", e.target.value)}
-                  className="w-full p-3 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  className="w-full p-3 bg-white/80 dark:bg-gray-700 rounded border border-slate-200 dark:border-gray-600 focus:border-blue-500 focus:outline-none"
                 >
                   <option value="entry">Entry Level</option>
                   <option value="mid">Mid Level</option>
@@ -353,11 +353,11 @@ const ChatInterview = () => {
               </div>
               
               <div>
-                <label className="block mb-2 text-gray-300">Focus Area</label>
+                <label className="block mb-2 text-slate-600 dark:text-gray-300">Focus Area</label>
                 <select
                   value={interviewDetails.focusArea}
                   onChange={(e) => handleDetailChange("focusArea", e.target.value)}
-                  className="w-full p-3 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  className="w-full p-3 bg-white/80 dark:bg-gray-700 rounded border border-slate-200 dark:border-gray-600 focus:border-blue-500 focus:outline-none"
                 >
                   <option value="technical">Technical</option>
                   <option value="behavioral">Behavioral</option>

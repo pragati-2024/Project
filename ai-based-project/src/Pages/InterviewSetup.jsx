@@ -59,7 +59,7 @@ const InterviewSetup = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-var(--header-height))] bg-gray-900 text-gray-100 px-4 py-8 sm:p-6 flex flex-col justify-center">
+    <div className="min-h-[calc(100vh-var(--header-height))] bg-transparent text-slate-900 dark:bg-gray-900 dark:text-gray-100 px-4 py-8 sm:p-6 flex flex-col justify-center radial-background">
       <motion.h1 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

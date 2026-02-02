@@ -55,9 +55,19 @@ const Settings = () => {
          const backend = res?.data?.user?.settings;
          if (backend && typeof backend === 'object') {
            setSettings((s) => ({ ...s, ...backend }));
-           if (backend.theme && ['light', 'dark', 'system'].includes(backend.theme)) {
-             setTheme(backend.theme);
-           }
+            // Only pull theme from backend if there's no local preference yet.
+            // This prevents "auto dark" overriding the user's selection on every load.
+            let hasLocalTheme = false;
+            try {
+              const local = localStorage.getItem('theme');
+              hasLocalTheme = !!local && ['light', 'dark', 'system'].includes(local);
+            } catch {
+              hasLocalTheme = false;
+            }
+
+            if (!hasLocalTheme && backend.theme && ['light', 'dark', 'system'].includes(backend.theme)) {
+              setTheme(backend.theme);
+            }
          }
        } catch {
          // ignore (offline or backend not available)

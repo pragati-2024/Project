@@ -85,12 +85,10 @@ const Login = () => {
         localStorage.setItem('user', JSON.stringify(response.user));
         window.dispatchEvent(new Event('user-updated'));
 
-        // Apply persisted theme; default to dark for a consistent first-login experience
+        // Apply user's persisted theme if available; otherwise keep current preference
         const persistedTheme = response?.user?.settings?.theme;
         if (persistedTheme && ['light', 'dark', 'system'].includes(persistedTheme)) {
           setTheme(persistedTheme);
-        } else {
-          setTheme('dark');
         }
         navigate('/dashboard');
       } else {
@@ -112,8 +110,6 @@ const Login = () => {
         const persistedTheme = response?.user?.settings?.theme;
         if (persistedTheme && ['light', 'dark', 'system'].includes(persistedTheme)) {
           setTheme(persistedTheme);
-        } else {
-          setTheme('dark');
         }
         navigate('/dashboard');
       }
@@ -148,8 +144,6 @@ const Login = () => {
     const persistedTheme = response?.user?.settings?.theme;
     if (persistedTheme && ['light', 'dark', 'system'].includes(persistedTheme)) {
       setTheme(persistedTheme);
-    } else {
-      setTheme('dark');
     }
     navigate('/dashboard');
   };

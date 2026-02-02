@@ -2,10 +2,10 @@ import React from "react";
 
 const LegalPage = ({ title, children }) => {
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-6">
-      <div className="max-w-4xl mx-auto bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
+    <div className="min-h-screen bg-transparent text-slate-900 dark:bg-gray-900 dark:text-gray-100 p-6 radial-background">
+      <div className="max-w-4xl mx-auto bg-white/70 dark:bg-gray-800 p-6 rounded-lg shadow-lg border border-slate-200/70 dark:border-gray-700 backdrop-blur">
         <h1 className="text-2xl md:text-3xl font-bold mb-4">{title}</h1>
-        <div className="text-gray-300 space-y-3 text-sm md:text-base">{children}</div>
+        <div className="text-slate-700 dark:text-gray-300 space-y-3 text-sm md:text-base">{children}</div>
       </div>
     </div>
   );

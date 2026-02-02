@@ -31,10 +31,13 @@ export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      // Default to dark if nothing is saved
-      return saved === "light" || saved === "dark" || saved === "system" ? saved : "dark";
+      // Default to system if nothing is saved
+      const initial = saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
+      // Apply immediately to avoid a light/dark flash on first paint
+      applyThemeToDocument(initial);
+      return initial;
     } catch {
-      return "dark";
+      return "system";
     }
   });
 
