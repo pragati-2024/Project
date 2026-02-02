@@ -1,6 +1,14 @@
-const buildQuestionPrompt = ({ company, jobRole, level, focusArea, count }) => {
+const buildQuestionPrompt = ({
+  company,
+  jobRole,
+  level,
+  focusArea,
+  count,
+  track,
+}) => {
   const safeCount = Number.isFinite(count) ? count : 5;
   const isPlacement = String(level || "").toLowerCase() === "entry";
+  const t = String(track || "").toLowerCase();
   return `You are a senior technical interviewer.
 
 Task: Generate exactly ${safeCount} interview questions.
@@ -9,6 +17,7 @@ Context:
 - Role: ${jobRole}
 - Level: ${level}
 - Focus area: ${focusArea}
+- Candidate track (optional): ${t || "N/A"}
 - Company (optional): ${company || "N/A"}
 
 Goal:
@@ -17,6 +26,7 @@ Goal:
 Guidance:
 - Include a balanced mix based on focus area.
 - If focus area is "technical", prioritize: DSA basics, OOP, DBMS, OS, networking, debugging, projects.
+- If candidate track is "mba", avoid DSA/programming questions and ask MBA admission-style questions (goals, leadership, teamwork, ethics, motivation, school fit).
 - If focus area is "behavioral", prioritize: teamwork, conflict, ownership, communication, STAR answers.
 - If focus area is "system-design", prioritize: scalable design, trade-offs, APIs, database choices.
 - Keep each question clear and actionable.
@@ -29,7 +39,14 @@ Rules:
 `;
 };
 
-const buildFeedbackPrompt = ({ company, jobRole, level, focusArea, qa }) => {
+const buildFeedbackPrompt = ({
+  company,
+  jobRole,
+  level,
+  focusArea,
+  qa,
+  track,
+}) => {
   const qaText = (qa || [])
     .map((item, idx) => {
       const q = item?.question || "";
@@ -46,6 +63,7 @@ Context:
 - Role: ${jobRole}
 - Level: ${level}
 - Focus area: ${focusArea}
+- Candidate track (optional): ${String(track || "").trim() || "N/A"}
 - Company (optional): ${company || "N/A"}
 
 Candidate responses:
@@ -61,6 +79,7 @@ Output format (IMPORTANT):
 
 Additional requirements:
 - Keep feedback placement-oriented (what recruiters expect).
+- If answers are too short / keyword-only / nonsensical, score must be 0.
 - Suggest 1 improved sample answer snippet (3-6 lines) under heading "Sample Improved Answer:" for the weakest answer.
 
 Keep it concise and actionable.
@@ -72,6 +91,7 @@ const buildAnswerCheckPrompt = ({
   jobRole,
   level,
   focusArea,
+  track,
   question,
   answer,
 }) => {
@@ -86,6 +106,7 @@ Context:
 - Role: ${jobRole}
 - Level: ${level}
 - Focus area: ${focusArea}
+- Candidate track (optional): ${String(track || "").trim() || "N/A"}
 - Company (optional): ${company || "N/A"}
 
 Question:
@@ -96,6 +117,7 @@ ${a || "(no answer)"}
 
 Rules:
 - Be specific to the question.
+- If the answer is too short / keyword-only / gibberish, the score must be 0 and verdict must be "Weak".
 - If correct but vague, ask for the 1-2 most important missing details (metrics, example, trade-offs).
 - If wrong/confused, correct it briefly and show the right direction.
 - Keep it short and actionable.

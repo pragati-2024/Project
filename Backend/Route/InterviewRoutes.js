@@ -15,7 +15,71 @@ const {
   evaluateFallback,
 } = require("../ai/fallback");
 const { getQuestionBank } = require("../ai/questionBank");
+const { getMbaQuestionBank } = require("../ai/mbaQuestionBank");
+const { analyzeAnswerQuality } = require("../ai/answerQuality");
 const questionRoutes = require("./QuestionRoutes");
+
+const buildEncouragement = ({ score }) => {
+  if (typeof score !== "number") {
+    return "Keep going — you’re improving with every question.";
+  }
+  if (score >= 8) {
+    return "Excellent — you’re doing really well. Keep the same structure and add 1 concrete example/metric to make it even stronger.";
+  }
+  if (score >= 5) {
+    return "Good job — you’re on the right track. For a higher score, add 1–2 key details (example, metric, trade-off) and keep answers structured.";
+  }
+  if (score >= 1) {
+    return "Don’t worry — this is normal in practice. Focus on structure first, then add one clear example to support your points.";
+  }
+  return "No problem — let’s improve. Avoid 1–3 word answers; aim for a short, structured explanation (6–10 lines) with one example.";
+};
+
+const buildStudyResources = ({ track, focusArea, question }) => {
+  const t = String(track || "")
+    .trim()
+    .toLowerCase();
+  const fa = String(focusArea || "")
+    .trim()
+    .toLowerCase();
+  const q = String(question || "").trim();
+
+  const resources = [];
+
+  if (t === "mba" || fa === "behavioral") {
+    resources.push({
+      label: "STAR Method (Interview Structure)",
+      url: "https://www.indeed.com/career-advice/interviewing/star-method",
+    });
+    resources.push({
+      label: "Behavioral Interview Tips",
+      url: "https://www.themuse.com/advice/behavioral-interview-questions-answers-examples",
+    });
+  }
+
+  if (t === "mba") {
+    resources.push({
+      label: "MBA Interview Prep (Goals / Why MBA / Leadership)",
+      url: "https://www.mba.com/explore-programs/mba-programs/mba-interviews",
+    });
+  }
+
+  if (fa === "technical") {
+    resources.push({
+      label: "GeeksforGeeks (Search this topic)",
+      url: makeGfgSearchUrl(q || "interview question"),
+    });
+  }
+
+  // Always add a general structure resource.
+  resources.push({
+    label: "How to give better interview answers (structure + examples)",
+    url: "https://www.indeed.com/career-advice/interviewing/how-to-answer-interview-questions",
+  });
+
+  // Cap to keep payload small.
+  return resources.slice(0, 3);
+};
 
 const getQuestionText = (item) => {
   if (!item) return "";
@@ -197,12 +261,38 @@ const normalizeDate = (value) => {
 };
 
 router.post("/questions", requireAuth, async (req, res) => {
-  const { company = "", jobRole, level, focusArea, count } = req.body || {};
+  const {
+    company = "",
+    jobRole,
+    level,
+    focusArea,
+    count,
+    track,
+  } = req.body || {};
 
   if (!jobRole || !level || !focusArea) {
     return res
       .status(400)
       .json({ message: "jobRole, level, focusArea are required" });
+  }
+
+  const normalizedTrack = String(track || "")
+    .trim()
+    .toLowerCase();
+  if (normalizedTrack === "mba") {
+    const safeCount = Number.isFinite(Number(count)) ? Number(count) : 10;
+    return res.json({
+      source: "mba-bank",
+      questions: getMbaQuestionBank({ count: safeCount }),
+    });
+  }
+
+  // Company-specific question banks should apply across modes (video/chat/voice).
+  // If user typed Google/Amazon/Microsoft, return that set even if focusArea is technical.
+  const bank = getQuestionBank(company);
+  if (bank && bank.length) {
+    const limit = Number.isFinite(Number(count)) ? Number(count) : bank.length;
+    return res.json({ source: "bank", questions: bank.slice(0, limit) });
   }
 
   // For Technical mode we return curated Q&A with references
@@ -217,18 +307,13 @@ router.post("/questions", requireAuth, async (req, res) => {
     return res.json({ source: "topic-bank", questions });
   }
 
-  const bank = getQuestionBank(company);
-  if (bank && bank.length) {
-    const limit = Number.isFinite(Number(count)) ? Number(count) : bank.length;
-    return res.json({ source: "bank", questions: bank.slice(0, limit) });
-  }
-
   const prompt = buildQuestionPrompt({
     company,
     jobRole,
     level,
     focusArea,
     count,
+    track,
   });
 
   try {
@@ -248,6 +333,7 @@ router.post("/questions", requireAuth, async (req, res) => {
       level,
       focusArea,
       count,
+      track,
     });
     return res.json({
       source: "fallback",
@@ -261,6 +347,7 @@ router.post("/questions", requireAuth, async (req, res) => {
       level,
       focusArea,
       count,
+      track,
     });
     return res.json({ source: "fallback", questions, warning: err.message });
   }
@@ -272,6 +359,7 @@ router.post("/check-answer", requireAuth, async (req, res) => {
     jobRole,
     level,
     focusArea,
+    track,
     question,
     answer,
   } = req.body || {};
@@ -288,11 +376,36 @@ router.post("/check-answer", requireAuth, async (req, res) => {
     return res.status(400).json({ message: "answer is required" });
   }
 
+  const quality = analyzeAnswerQuality(answer);
+  if (quality.lowEffort) {
+    const resources = buildStudyResources({ track, focusArea, question });
+    return res.json({
+      source: "rule",
+      verdict: "Weak",
+      score: 0,
+      encouragement: buildEncouragement({ score: 0 }),
+      resources,
+      good: [],
+      improve: [
+        "Your answer is too short / keyword-only. Expand with a clear explanation.",
+        "Add 1 example or evidence (project, situation, metric).",
+      ],
+      keyMissing: ["Basic explanation", "Example / detail"],
+      improvedAnswer:
+        "Give a 1-line definition, then 2–3 supporting points, and one concrete example.",
+      oneLinerTip: "Avoid 1–3 word answers; explain in 6–10 lines.",
+      feedback:
+        "Verdict: Weak\nScore: 0/10\n\nWhat to improve:\n- Answer is too short/keyword-only.\n- Add explanation + example.",
+      blockedBy: quality.reason,
+    });
+  }
+
   const prompt = buildAnswerCheckPrompt({
     company,
     jobRole,
     level,
     focusArea,
+    track,
     question: String(question).slice(0, 800),
     answer: String(answer).slice(0, 4000),
   });
@@ -393,25 +506,48 @@ router.post("/check-answer", requireAuth, async (req, res) => {
       const parsed = safeParseJson(ai.text);
       const structured = formatStructuredCheck(parsed);
       if (structured) {
+        // Safety net: if an answer is low-effort, force 0 even if the model returns higher.
+        const guardedScore = quality.lowEffort ? 0 : structured.score;
+        const resources = buildStudyResources({ track, focusArea, question });
         return res.json({
           source: "ai",
           ...structured,
+          ...(typeof guardedScore === "number" ? { score: guardedScore } : {}),
+          ...(quality.lowEffort
+            ? { verdict: "Weak", blockedBy: quality.reason }
+            : {}),
+          encouragement: buildEncouragement({
+            score:
+              typeof guardedScore === "number"
+                ? guardedScore
+                : structured.score,
+          }),
+          resources,
           raw: String(ai.text),
         });
       }
 
-      return res.json({ source: "ai", feedback: ai.text });
+      const resources = buildStudyResources({ track, focusArea, question });
+      return res.json({
+        source: "ai",
+        feedback: ai.text,
+        encouragement: buildEncouragement({ score: undefined }),
+        resources,
+      });
     }
 
     const { score, feedback } = evaluateFallback({
       qa: [{ question: String(question || ""), answer: String(answer || "") }],
     });
     const verdict = score >= 8 ? "Strong" : score >= 5 ? "Okay" : "Weak";
+    const resources = buildStudyResources({ track, focusArea, question });
     return res.json({
       source: "fallback",
       feedback,
       score,
       verdict,
+      encouragement: buildEncouragement({ score }),
+      resources,
       warning: ai.ok ? undefined : ai.error,
     });
   } catch (err) {
@@ -419,11 +555,14 @@ router.post("/check-answer", requireAuth, async (req, res) => {
       qa: [{ question: String(question || ""), answer: String(answer || "") }],
     });
     const verdict = score >= 8 ? "Strong" : score >= 5 ? "Okay" : "Weak";
+    const resources = buildStudyResources({ track, focusArea, question });
     return res.json({
       source: "fallback",
       feedback,
       score,
       verdict,
+      encouragement: buildEncouragement({ score }),
+      resources,
       warning: err.message,
     });
   }
@@ -435,6 +574,7 @@ router.post("/feedback", requireAuth, async (req, res) => {
     jobRole,
     level,
     focusArea,
+    track,
     questions,
     answers,
     qa,
@@ -461,12 +601,37 @@ router.post("/feedback", requireAuth, async (req, res) => {
       .json({ message: "Provide qa[] or questions[] + answers[]" });
   }
 
+  // If most answers are low-effort, short-circuit with a strict 0/10 feedback.
+  const signals = pairs.map((p) => analyzeAnswerQuality(p?.answer || ""));
+  const lowEffortCount = signals.filter((s) => s.lowEffort).length;
+  if (lowEffortCount >= Math.max(1, Math.ceil(pairs.length * 0.6))) {
+    const feedback = [
+      "Score: 0/10",
+      "",
+      "Strengths:",
+      "- You attempted to respond.",
+      "",
+      "Improvements:",
+      "- Many answers are too short or keyword-only.",
+      "- Expand each answer with explanation + example (STAR for behavioral).",
+      "",
+      "Communication Tips:",
+      "- Start with a 1-line summary, then 2–3 supporting points.",
+      "- Include one metric or concrete outcome when possible.",
+      "",
+      "Next Steps:",
+      "- Practice expanding each answer to at least 80–150 characters.",
+    ].join("\n");
+    return res.json({ source: "rule", feedback, score: 0 });
+  }
+
   const prompt = buildFeedbackPrompt({
     company,
     jobRole,
     level,
     focusArea,
     qa: pairs,
+    track,
   });
 
   try {
@@ -528,6 +693,7 @@ router.post("/history", requireAuth, async (req, res) => {
       jobRole = "",
       level = "",
       focusArea = "",
+      track = "",
       text = "",
       score,
     } = req.body || {};
@@ -550,6 +716,7 @@ router.post("/history", requireAuth, async (req, res) => {
       jobRole: String(jobRole || "").slice(0, 80),
       level: String(level || "").slice(0, 30),
       focusArea: String(focusArea || "").slice(0, 40),
+      track: String(track || "").slice(0, 20),
       text: String(text || "").slice(0, 20000),
       score: typeof score === "number" ? score : undefined,
     });

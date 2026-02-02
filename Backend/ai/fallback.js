@@ -1,9 +1,12 @@
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
+const { analyzeAnswerQuality } = require("./answerQuality");
+
 const generateFallbackQuestions = ({
   jobRole,
   level,
   focusArea,
+  track,
   count = 5,
 }) => {
   const role = jobRole || "Software Engineer";
@@ -11,6 +14,18 @@ const generateFallbackQuestions = ({
   const area = focusArea || "technical";
 
   const templates = {
+    mba: [
+      "Tell me about yourself.",
+      "Why do you want to pursue an MBA?",
+      "What are your career goals?",
+      "What are your strengths and weaknesses?",
+      "Describe a challenge you’ve overcome.",
+      "How do you handle conflict in a team?",
+      "Describe feedback you received and how you responded.",
+      "How do you handle pressure and deadlines?",
+      "What is your most significant accomplishment?",
+      "Do you have any questions for us?",
+    ],
     technical: [
       `For placement prep: Describe one project you built and your exact contribution (tech stack + impact).`,
       `Explain time complexity and space complexity with an example.`,
@@ -41,7 +56,10 @@ const generateFallbackQuestions = ({
     ],
   };
 
-  const pool = templates[area] || templates.technical;
+  const isMbaTrack = String(track || "").toLowerCase() === "mba";
+  const pool = isMbaTrack
+    ? templates.mba
+    : templates[area] || templates.technical;
   const wanted = clamp(Number(count) || 5, 1, 10);
   const questions = Array.from(
     { length: wanted },
@@ -63,6 +81,36 @@ const generateFallbackQuestions = ({
 const evaluateFallback = ({ qa }) => {
   const pairs = Array.isArray(qa) ? qa : [];
   const answered = pairs.filter((p) => (p?.answer || "").trim().length > 0);
+
+  // If every provided answer is low-effort, score must be 0.
+  const effortSignals = pairs.map((p) => analyzeAnswerQuality(p?.answer || ""));
+  const lowEffortAnswered = effortSignals.filter((s, idx) => {
+    const has = (pairs[idx]?.answer || "").trim().length > 0;
+    return has && s.lowEffort;
+  });
+  if (answered.length > 0 && lowEffortAnswered.length === answered.length) {
+    const feedback = [
+      "Score: 0/10",
+      "",
+      "Strengths:",
+      "- You attempted to respond.",
+      "",
+      "Improvements:",
+      "- Answers are too short / keyword-only. Add a clear explanation and one example.",
+      "- Use a structure (STAR for behavioral, or Definition → Example → Impact).",
+      "",
+      "Communication Tips:",
+      "- Start with a 1-line summary, then give 2–3 supporting points.",
+      "- Avoid single-word or 2-word answers.",
+      "",
+      "Sample Improved Answer:",
+      "- First, I would define the concept in one line. Then I would give a simple example and explain why it matters.",
+      "",
+      "Next Steps:",
+      "- Practice expanding each answer to 6–10 lines with one real example.",
+    ].join("\n");
+    return { score: 0, feedback };
+  }
   const avgLen = answered.length
     ? Math.round(
         answered.reduce((sum, p) => sum + (p.answer || "").trim().length, 0) /
@@ -70,9 +118,11 @@ const evaluateFallback = ({ qa }) => {
       )
     : 0;
 
-  let score = 4;
+  // Start from 0 so trivial answers don't accidentally score points.
+  let score = 0;
   if (answered.length >= Math.max(1, Math.floor(pairs.length * 0.8)))
-    score += 2;
+    score += 3;
+  if (avgLen > 80) score += 2;
   if (avgLen > 160) score += 2;
   if (avgLen > 320) score += 1;
   score = clamp(score, 0, 10);

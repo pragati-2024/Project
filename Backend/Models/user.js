@@ -86,6 +86,11 @@ const UserSchema = new mongoose.Schema(
           default: "",
           trim: true,
         },
+        track: {
+          type: String,
+          default: "",
+          trim: true,
+        },
         text: {
           type: String,
           default: "",

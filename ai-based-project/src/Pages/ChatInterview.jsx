@@ -5,7 +5,8 @@ const ChatInterview = () => {
     company: "",
     jobRole: "Software Engineer",
     level: "mid",
-    focusArea: "technical"
+    focusArea: "technical",
+    track: "tech",
   });
 
   const [questions, setQuestions] = useState([]);
@@ -27,7 +28,12 @@ const ChatInterview = () => {
 
   const isBuiltInCompany = (company) => {
     const normalized = String(company || "").trim().toLowerCase();
-    return normalized === "google" || normalized === "amazon" || normalized === "microsoft";
+    return (
+      normalized.includes("google") ||
+      normalized.includes("amazon") ||
+      normalized.includes("microsoft") ||
+      normalized === "ms"
+    );
   };
 
   const persistHistoryToServer = async (payload) => {
@@ -56,6 +62,7 @@ const ChatInterview = () => {
       jobRole: interviewDetails.jobRole,
       level: interviewDetails.level,
       focusArea: interviewDetails.focusArea,
+      track: interviewDetails.track,
     };
 
     try {
@@ -67,6 +74,34 @@ const ChatInterview = () => {
     } catch {
       // Fallback to plain string (still works)
       localStorage.setItem("interviewFeedback", text);
+    }
+
+    void persistHistoryToServer(entry);
+  };
+
+  const persistPerQuestionHistory = (payload) => {
+    const entry = {
+      date: new Date().toISOString(),
+      mode: "chat",
+      company: interviewDetails.company,
+      jobRole: interviewDetails.jobRole,
+      level: interviewDetails.level,
+      focusArea: interviewDetails.focusArea,
+      track: interviewDetails.track,
+      ...payload,
+    };
+
+    try {
+      const stored = localStorage.getItem("interviewQuestionHistory");
+      const existing = stored ? JSON.parse(stored) : [];
+      const history = Array.isArray(existing) ? existing : [];
+      history.unshift(entry);
+      localStorage.setItem(
+        "interviewQuestionHistory",
+        JSON.stringify(history.slice(0, 50)),
+      );
+    } catch {
+      // ignore
     }
 
     void persistHistoryToServer(entry);
@@ -118,6 +153,7 @@ const ChatInterview = () => {
           jobRole: interviewDetails.jobRole,
           level: interviewDetails.level,
           focusArea: interviewDetails.focusArea,
+          track: interviewDetails.track,
           ...(useBank ? {} : { count: 5 }),
         }),
       });
@@ -186,6 +222,7 @@ const ChatInterview = () => {
           jobRole: interviewDetails.jobRole,
           level: interviewDetails.level,
           focusArea: interviewDetails.focusArea,
+          track: interviewDetails.track,
           question,
           answer,
         }),
@@ -228,6 +265,24 @@ const ChatInterview = () => {
       return;
     }
 
+    // Save per-question history on submit.
+    try {
+      const qText = getQuestionText(questions[currentQuestionIndex]);
+      persistPerQuestionHistory({
+        score: typeof answerCheck?.score === "number" ? answerCheck.score : undefined,
+        text:
+          `Q${currentQuestionIndex + 1}: ${qText}\n` +
+          `A: ${answer}\n` +
+          (answerCheck?.verdict ? `Verdict: ${answerCheck.verdict}\n` : "") +
+          (typeof answerCheck?.score === "number"
+            ? `Score: ${answerCheck.score}/10\n\n`
+            : "\n") +
+          String(answerCheck?.feedback || "").trim(),
+      });
+    } catch {
+      // ignore
+    }
+
     const updatedAnswers = [...answers];
     updatedAnswers[currentQuestionIndex] = answer;
     setAnswers(updatedAnswers);
@@ -256,6 +311,7 @@ const ChatInterview = () => {
           jobRole: interviewDetails.jobRole,
           level: interviewDetails.level,
           focusArea: interviewDetails.focusArea,
+          track: interviewDetails.track,
           questions: questions.map(getQuestionText),
           answers: finalAnswers,
         }),
@@ -297,6 +353,24 @@ const ChatInterview = () => {
     if (!alreadyChecked) {
       await checkCurrentAnswer();
       return;
+    }
+
+    // Save last per-question history before generating overall feedback.
+    try {
+      const qText = getQuestionText(questions[currentQuestionIndex]);
+      persistPerQuestionHistory({
+        score: typeof answerCheck?.score === "number" ? answerCheck.score : undefined,
+        text:
+          `Q${currentQuestionIndex + 1}: ${qText}\n` +
+          `A: ${answer}\n` +
+          (answerCheck?.verdict ? `Verdict: ${answerCheck.verdict}\n` : "") +
+          (typeof answerCheck?.score === "number"
+            ? `Score: ${answerCheck.score}/10\n\n`
+            : "\n") +
+          String(answerCheck?.feedback || "").trim(),
+      });
+    } catch {
+      // ignore
     }
 
     const updatedAnswers = [...answers];
@@ -352,6 +426,18 @@ const ChatInterview = () => {
                 </select>
               </div>
               
+              <div>
+                <label className="block mb-2 text-slate-600 dark:text-gray-300">Candidate Type</label>
+                <select
+                  value={interviewDetails.track}
+                  onChange={(e) => handleDetailChange("track", e.target.value)}
+                  className="w-full p-3 bg-white/80 dark:bg-gray-700 rounded border border-slate-200 dark:border-gray-600 focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="tech">Tech / Software</option>
+                  <option value="mba">MBA</option>
+                </select>
+              </div>
+
               <div>
                 <label className="block mb-2 text-slate-600 dark:text-gray-300">Focus Area</label>
                 <select
@@ -500,6 +586,31 @@ const ChatInterview = () => {
                     <div className="text-gray-200 text-sm">Score: {answerCheck.score}/10</div>
                   )}
                 </div>
+
+                {answerCheck?.encouragement && (
+                  <div className="text-gray-100 text-sm mb-3">
+                    {String(answerCheck.encouragement)}
+                  </div>
+                )}
+
+                {Array.isArray(answerCheck?.resources) && answerCheck.resources.length > 0 && (
+                  <div className="mb-4">
+                    <div className="text-gray-200 text-sm mb-1">Recommended sources</div>
+                    <div className="flex flex-wrap gap-3 text-sm">
+                      {answerCheck.resources.slice(0, 3).map((r, idx) => (
+                        <a
+                          key={`res-${idx}-${r?.url || ""}`}
+                          href={String(r?.url || "#")}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="underline text-blue-300 hover:text-blue-200"
+                        >
+                          {String(r?.label || `Source ${idx + 1}`)}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {answerCheck?.verdict && (
                   <div className="mb-3">
                     <span
@@ -593,7 +704,7 @@ const ChatInterview = () => {
                     currentQuestionIndex > 0 ? "" : "ml-auto"
                   } disabled:opacity-50`}
                 >
-                  Next
+                  Submit Answer
                 </button>
               ) : (
                 <button

@@ -11,6 +11,7 @@ const VoiceInterview = () => {
     jobRole: "Software Engineer",
     level: "mid",
     focusArea: "behavioral",
+    track: "tech",
   });
 
   const [permissionError, setPermissionError] = useState("");
@@ -67,6 +68,7 @@ const VoiceInterview = () => {
       jobRole: interviewDetails.jobRole,
       level: interviewDetails.level,
       focusArea: interviewDetails.focusArea,
+      track: interviewDetails.track,
     };
 
     try {
@@ -77,6 +79,34 @@ const VoiceInterview = () => {
       localStorage.setItem("interviewFeedback", JSON.stringify(history.slice(0, 20)));
     } catch {
       localStorage.setItem("interviewFeedback", text);
+    }
+
+    void persistHistoryToServer(entry);
+  };
+
+  const persistPerQuestionHistory = (payload) => {
+    const entry = {
+      date: new Date().toISOString(),
+      mode: "voice",
+      company: interviewDetails.company,
+      jobRole: interviewDetails.jobRole,
+      level: interviewDetails.level,
+      focusArea: interviewDetails.focusArea,
+      track: interviewDetails.track,
+      ...payload,
+    };
+
+    try {
+      const stored = localStorage.getItem("interviewQuestionHistory");
+      const existing = stored ? JSON.parse(stored) : [];
+      const history = Array.isArray(existing) ? existing : [];
+      history.unshift(entry);
+      localStorage.setItem(
+        "interviewQuestionHistory",
+        JSON.stringify(history.slice(0, 50)),
+      );
+    } catch {
+      // ignore
     }
 
     void persistHistoryToServer(entry);
@@ -134,7 +164,7 @@ const VoiceInterview = () => {
 
   const isBuiltInCompany = (company) => {
     const c = normalizeCompany(company);
-    return c.includes("google") || c.includes("amazon") || c.includes("microsoft");
+    return c.includes("google") || c.includes("amazon") || c.includes("microsoft") || c === "ms";
   };
 
   const buildAnswerStructure = (question) => {
@@ -497,6 +527,7 @@ const VoiceInterview = () => {
           jobRole: interviewDetails.jobRole,
           level: interviewDetails.level,
           focusArea: interviewDetails.focusArea,
+          track: interviewDetails.track,
           question: q,
           answer: a,
         }),
@@ -511,6 +542,10 @@ const VoiceInterview = () => {
       const item = {
         index: currentQuestionIndex,
         answer: a,
+        verdict: data?.verdict,
+        score: typeof data?.score === "number" ? data.score : undefined,
+        encouragement: data?.encouragement,
+        resources: Array.isArray(data?.resources) ? data.resources : [],
         feedback: String(data?.feedback || "").trim(),
         source: data?.source || "unknown",
       };
@@ -821,6 +856,7 @@ const VoiceInterview = () => {
           jobRole: interviewDetails.jobRole,
           level: interviewDetails.level,
           focusArea: interviewDetails.focusArea,
+          track: interviewDetails.track,
           ...(useBank ? {} : { count: 5 }),
         }),
       });
@@ -874,6 +910,25 @@ const VoiceInterview = () => {
       return;
     }
 
+    // Save per-question history on submit.
+    try {
+      const qText = getQuestionText(questions[currentQuestionIndex]);
+      const normalizedAnswer = normalizeText(currentAnswer);
+      persistPerQuestionHistory({
+        score: typeof answerCheck?.score === "number" ? answerCheck.score : undefined,
+        text:
+          `Q${currentQuestionIndex + 1}: ${qText}\n` +
+          `A: ${normalizedAnswer}\n` +
+          (answerCheck?.verdict ? `Verdict: ${answerCheck.verdict}\n` : "") +
+          (typeof answerCheck?.score === "number"
+            ? `Score: ${answerCheck.score}/10\n\n`
+            : "\n") +
+          String(answerCheck?.feedback || "").trim(),
+      });
+    } catch {
+      // ignore
+    }
+
     const updated = [...answers];
     updated[currentQuestionIndex] = currentAnswer;
     setAnswers(updated);
@@ -907,6 +962,7 @@ const VoiceInterview = () => {
           jobRole: interviewDetails.jobRole,
           level: interviewDetails.level,
           focusArea: interviewDetails.focusArea,
+          track: interviewDetails.track,
           questions: questions.map(getQuestionText),
           answers,
         }),
@@ -985,6 +1041,18 @@ const VoiceInterview = () => {
                   <option value="entry">Entry Level</option>
                   <option value="mid">Mid Level</option>
                   <option value="senior">Senior Level</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block mb-2 text-gray-300">Candidate Type</label>
+                <select
+                  value={interviewDetails.track}
+                  onChange={(e) => handleDetailChange("track", e.target.value)}
+                  className="w-full p-3 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="tech">Tech / Software</option>
+                  <option value="mba">MBA</option>
                 </select>
               </div>
 
@@ -1317,6 +1385,31 @@ const VoiceInterview = () => {
                   <div className="text-yellow-200 text-xs mb-2">{String(answerCheck.warning)}</div>
                 )}
 
+                {answerCheck?.encouragement && (
+                  <div className="text-gray-100 text-sm mb-3">
+                    {String(answerCheck.encouragement)}
+                  </div>
+                )}
+
+                {Array.isArray(answerCheck?.resources) && answerCheck.resources.length > 0 && (
+                  <div className="mb-4">
+                    <div className="text-gray-200 text-sm mb-1">Recommended sources</div>
+                    <div className="flex flex-wrap gap-3 text-sm">
+                      {answerCheck.resources.slice(0, 3).map((r, idx) => (
+                        <a
+                          key={`res-${idx}-${r?.url || ""}`}
+                          href={String(r?.url || "#")}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="underline text-blue-300 hover:text-blue-200"
+                        >
+                          {String(r?.label || `Source ${idx + 1}`)}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {(Array.isArray(answerCheck?.good) || Array.isArray(answerCheck?.improve)) && (
                   <div className="space-y-3">
                     {Array.isArray(answerCheck?.good) && answerCheck.good.length > 0 && (
@@ -1376,7 +1469,7 @@ const VoiceInterview = () => {
                 )}
 
                 <div className="text-gray-300 text-xs mt-2">
-                  Tip: Click Next once to check, and again to continue.
+                  Tip: Click Submit Answer once to check, and again to continue.
                 </div>
               </div>
             )}
@@ -1414,7 +1507,7 @@ const VoiceInterview = () => {
                     currentQuestionIndex > 0 ? "" : "ml-auto"
                   }`}
                 >
-                  Next
+                  Submit Answer
                 </button>
               ) : (
                 <button
