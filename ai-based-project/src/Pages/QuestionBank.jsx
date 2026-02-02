@@ -12,6 +12,7 @@ import devopsIcon from '../assets/devops.png';
 import aiIcon from '../assets/ai.png';
 import fireIcon from '../assets/fire.png';
 import gdIcon from '../assets/1F4CA_color.png';
+import hrRoundIcon from '../assets/hrround.png';
 
 const questionData = [
   { id: 1, name: 'HTML Notes', description: 'View Interview Questions', category: 'Frontend', image: htmlIcon, path: 'html' },
@@ -25,7 +26,7 @@ const questionData = [
   { id: 7, name: 'DevOps Notes', description: 'View Interview Questions', category: 'DevOps', image: devopsIcon, path: 'devops' },
   { id: 8, name: 'AI/ML Notes', description: 'View Interview Questions', category: 'AI/ML', image: aiIcon, path: 'ai-ml' },
   { id: 10, name: 'AI Integration Notes', description: 'How to integrate AI in apps', category: 'AI/ML', image: aiIcon, path: 'ai-integration' },
-  { id: 11, name: 'HR Round', description: 'Most common HR questions', category: 'HR/GD', image: fireIcon, path: 'hr' },
+  { id: 11, name: 'HR Round', description: 'Most common HR questions', category: 'HR/GD', image: hrRoundIcon, path: 'hr' },
   { id: 12, name: 'GD Rounds', description: 'Group Discussion tips + topics', category: 'HR/GD', image: gdIcon, path: 'gd-rounds' },
 ];
 
