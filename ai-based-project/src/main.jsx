@@ -5,6 +5,11 @@ import './index.css'
 import App from './App.jsx'
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
+// Warm up backend ASAP (helps Render cold starts; reduces Google sign-in delay)
+try {
+  fetch('/api/health', { method: 'GET', cache: 'no-store' }).catch(() => {});
+} catch {}
+
 
 
 

@@ -19,9 +19,36 @@ const Login = () => {
   const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [backendWarmup, setBackendWarmup] = useState('idle'); // idle | warming | ready | failed
   const [sessionUser, setSessionUser] = useState(null);
   const navigate = useNavigate();
   const { setTheme } = useTheme();
+
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+    setBackendWarmup('warming');
+    fetch('/api/health', { method: 'GET', cache: 'no-store', signal: controller.signal })
+      .then((r) => {
+        if (cancelled) return;
+        setBackendWarmup(r.ok ? 'ready' : 'failed');
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setBackendWarmup('failed');
+      })
+      .finally(() => {
+        clearTimeout(timeoutId);
+      });
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, []);
 
   useEffect(() => {
     // If already logged in, show quick actions (don’t force redirect)
@@ -504,14 +531,21 @@ const Login = () => {
                       className="w-full flex justify-center"
                       style={{ opacity: googleLoading ? 0.7 : 1, pointerEvents: googleLoading ? 'none' : 'auto' }}
                     >
-                      <GoogleLogin
-                        onSuccess={handleGoogleSuccess}
-                        onError={handleGoogleError}
-                        theme="outline"
-                        size="large"
-                        shape="pill"
-                        text="signin_with"
-                      />
+                      <div className="w-full flex flex-col items-center gap-2">
+                        <GoogleLogin
+                          onSuccess={handleGoogleSuccess}
+                          onError={handleGoogleError}
+                          theme="outline"
+                          size="large"
+                          shape="pill"
+                          text="signin_with"
+                        />
+                        {backendWarmup === 'warming' && (
+                          <div className="text-xs text-slate-500 dark:text-gray-400 text-center">
+                            Starting server… first Google login can take 10–20s.
+                          </div>
+                        )}
+                      </div>
                     </motion.div>
                   ) : (
                     <motion.button

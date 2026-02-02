@@ -1,16 +1,20 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://accounts.google.com" />
+    <link rel="preconnect" href="https://apis.google.com" />
+    <link rel="dns-prefetch" href="https://accounts.google.com" />
+    <link rel="dns-prefetch" href="https://apis.google.com" />
     <script>
       // Apply theme before the app loads to avoid a light flash on first paint.
       (function () {
         try {
           var STORAGE_KEY = "theme"; // 'light' | 'dark' | 'system'
           var saved = localStorage.getItem(STORAGE_KEY);
-          var theme = saved === "light" || saved === "dark" || saved === "system" ? saved : "dark";
+          var theme = saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
 
           var resolved = theme;
           if (theme === "system") {
@@ -24,11 +28,7 @@
           root.classList.toggle("dark", resolved === "dark");
           root.dataset.theme = resolved;
           root.style.colorScheme = resolved;
-        } catch (e) {
-          // Fallback: keep dark
-          document.documentElement.classList.add("dark");
-          document.documentElement.style.colorScheme = "dark";
-        }
+        } catch (e) {}
       })();
     </script>
     <title>Mockneto</title>
