@@ -20,17 +20,14 @@
       ]
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "handle": "filesystem"
+      "source": "/api/:path*",
+      "destination": "https://project-emqa.onrender.com/api/:path*"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "https://project-emqa.onrender.com/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
