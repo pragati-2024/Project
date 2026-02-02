@@ -1,4 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
+import {
+  getMbaFocusAreas,
+  getMbaJobRoleSuggestions,
+  getMbaSpecialization,
+  MBA_SPECIALIZATIONS,
+} from "../utils/mbaCatalog";
 
 const ChatInterview = () => {
   const [interviewDetails, setInterviewDetails] = useState({
@@ -7,6 +13,7 @@ const ChatInterview = () => {
     level: "mid",
     focusArea: "technical",
     track: "tech",
+    mbaSpecialization: "marketing",
   });
 
   const [questions, setQuestions] = useState([]);
@@ -63,6 +70,7 @@ const ChatInterview = () => {
       level: interviewDetails.level,
       focusArea: interviewDetails.focusArea,
       track: interviewDetails.track,
+      mbaSpecialization: interviewDetails.mbaSpecialization,
     };
 
     try {
@@ -88,6 +96,7 @@ const ChatInterview = () => {
       level: interviewDetails.level,
       focusArea: interviewDetails.focusArea,
       track: interviewDetails.track,
+      mbaSpecialization: interviewDetails.mbaSpecialization,
       ...payload,
     };
 
@@ -154,6 +163,7 @@ const ChatInterview = () => {
           level: interviewDetails.level,
           focusArea: interviewDetails.focusArea,
           track: interviewDetails.track,
+          mbaSpecialization: interviewDetails.mbaSpecialization,
           ...(useBank ? {} : { count: 5 }),
         }),
       });
@@ -223,6 +233,7 @@ const ChatInterview = () => {
           level: interviewDetails.level,
           focusArea: interviewDetails.focusArea,
           track: interviewDetails.track,
+          mbaSpecialization: interviewDetails.mbaSpecialization,
           question,
           answer,
         }),
@@ -312,6 +323,7 @@ const ChatInterview = () => {
           level: interviewDetails.level,
           focusArea: interviewDetails.focusArea,
           track: interviewDetails.track,
+          mbaSpecialization: interviewDetails.mbaSpecialization,
           questions: questions.map(getQuestionText),
           answers: finalAnswers,
         }),
@@ -380,7 +392,60 @@ const ChatInterview = () => {
   };
 
   const handleDetailChange = (field, value) => {
-    setInterviewDetails(prev => ({ ...prev, [field]: value }));
+    setInterviewDetails((prev) => {
+      if (field === "track") {
+        const nextTrack = String(value || "");
+        if (nextTrack === prev.track) return prev;
+
+        if (nextTrack === "mba") {
+          const spec = getMbaSpecialization(prev.mbaSpecialization);
+          const mbaFocusAreas = getMbaFocusAreas(spec.key);
+          const mbaRoles = getMbaJobRoleSuggestions(spec.key);
+
+          const shouldAutoJobRole =
+            !String(prev.jobRole || "").trim() ||
+            String(prev.jobRole).toLowerCase().includes("software");
+
+          return {
+            ...prev,
+            track: nextTrack,
+            mbaSpecialization: spec.key,
+            jobRole: shouldAutoJobRole ? mbaRoles[0] || "Management Trainee" : prev.jobRole,
+            focusArea: mbaFocusAreas[0] || "Consumer behavior",
+          };
+        }
+
+        // switching back to tech
+        const knownMbaRoles = MBA_SPECIALIZATIONS.flatMap((s) =>
+          getMbaJobRoleSuggestions(s.key),
+        );
+        const isLikelyMbaRole = knownMbaRoles.includes(prev.jobRole);
+
+        return {
+          ...prev,
+          track: nextTrack,
+          jobRole: isLikelyMbaRole ? "Software Engineer" : prev.jobRole,
+          focusArea: "technical",
+        };
+      }
+
+      if (field === "mbaSpecialization") {
+        const spec = getMbaSpecialization(String(value || ""));
+        const mbaFocusAreas = getMbaFocusAreas(spec.key);
+        const currentFocus = String(prev.focusArea || "");
+        const nextFocus = mbaFocusAreas.includes(currentFocus)
+          ? currentFocus
+          : mbaFocusAreas[0] || "Consumer behavior";
+
+        return {
+          ...prev,
+          mbaSpecialization: spec.key,
+          focusArea: prev.track === "mba" ? nextFocus : prev.focusArea,
+        };
+      }
+
+      return { ...prev, [field]: value };
+    });
   };
 
   return (
@@ -406,11 +471,23 @@ const ChatInterview = () => {
                 <label className="block mb-2 text-slate-600 dark:text-gray-300">Job Role</label>
                 <input
                   type="text"
-                  placeholder="e.g. Frontend Developer"
+                  placeholder={
+                    interviewDetails.track === "mba"
+                      ? "e.g. Management Trainee"
+                      : "e.g. Frontend Developer"
+                  }
                   value={interviewDetails.jobRole}
                   onChange={(e) => handleDetailChange("jobRole", e.target.value)}
+                  list={interviewDetails.track === "mba" ? "mba-job-roles" : undefined}
                   className="w-full p-3 bg-white/80 dark:bg-gray-700 rounded border border-slate-200 dark:border-gray-600 focus:border-blue-500 focus:outline-none"
                 />
+                {interviewDetails.track === "mba" && (
+                  <datalist id="mba-job-roles">
+                    {getMbaJobRoleSuggestions(interviewDetails.mbaSpecialization).map((r) => (
+                      <option key={r} value={r} />
+                    ))}
+                  </datalist>
+                )}
               </div>
               
               <div>
@@ -438,6 +515,26 @@ const ChatInterview = () => {
                 </select>
               </div>
 
+              {interviewDetails.track === "mba" && (
+                <div>
+                  <label className="block mb-2 text-slate-600 dark:text-gray-300">MBA Specialization</label>
+                  <select
+                    value={interviewDetails.mbaSpecialization}
+                    onChange={(e) => handleDetailChange("mbaSpecialization", e.target.value)}
+                    className="w-full p-3 bg-white/80 dark:bg-gray-700 rounded border border-slate-200 dark:border-gray-600 focus:border-blue-500 focus:outline-none"
+                  >
+                    {MBA_SPECIALIZATIONS.map((s) => (
+                      <option key={s.key} value={s.key}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="mt-2 text-sm text-slate-600 dark:text-gray-300">
+                    {getMbaSpecialization(interviewDetails.mbaSpecialization)?.interviewLine}
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="block mb-2 text-slate-600 dark:text-gray-300">Focus Area</label>
                 <select
@@ -445,9 +542,19 @@ const ChatInterview = () => {
                   onChange={(e) => handleDetailChange("focusArea", e.target.value)}
                   className="w-full p-3 bg-white/80 dark:bg-gray-700 rounded border border-slate-200 dark:border-gray-600 focus:border-blue-500 focus:outline-none"
                 >
-                  <option value="technical">Technical</option>
-                  <option value="behavioral">Behavioral</option>
-                  <option value="system-design">System Design</option>
+                  {interviewDetails.track === "mba" ? (
+                    getMbaFocusAreas(interviewDetails.mbaSpecialization).map((fa) => (
+                      <option key={fa} value={fa}>
+                        {fa}
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="technical">Technical</option>
+                      <option value="behavioral">Behavioral</option>
+                      <option value="system-design">System Design</option>
+                    </>
+                  )}
                 </select>
               </div>
             </div>

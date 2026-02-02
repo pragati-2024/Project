@@ -91,6 +91,11 @@ const UserSchema = new mongoose.Schema(
           default: "",
           trim: true,
         },
+        mbaSpecialization: {
+          type: String,
+          default: "",
+          trim: true,
+        },
         text: {
           type: String,
           default: "",

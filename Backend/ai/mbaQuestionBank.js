@@ -1,7 +1,7 @@
 // Curated MBA interview question bank (Q + reference answer templates).
 // These are short coaching-style answers so the UI can show a reference.
 
-const MBA_QUESTIONS = [
+const MBA_COMMON_QUESTIONS = [
   {
     question: "Tell me about yourself.",
     answer: `Present: I’m currently ___ (role/student) with experience in ___.
@@ -115,15 +115,197 @@ Close: My strengths are ___ and ___.`,
   },
 ];
 
-const getMbaQuestionBank = ({ count } = {}) => {
+const MBA_SPECIALIZATION_QUESTIONS = {
+  marketing: [
+    {
+      question: "How would you launch a new product in a competitive market?",
+      answer:
+        "Start with target segment + pain point, then positioning, pricing, channels, and a launch plan (teasers → launch → retention). Define success metrics (CAC, conversion, retention) and run A/B tests to iterate.",
+      tags: ["mba", "marketing"],
+    },
+    {
+      question: "What is STP (Segmentation, Targeting, Positioning)?",
+      answer:
+        "Segmentation: divide the market by needs/behavior/demographics. Targeting: pick the segments with best fit and profitability. Positioning: craft a clear value proposition so customers remember why you are different.",
+      tags: ["mba", "marketing"],
+    },
+    {
+      question: "How do you measure a digital marketing campaign?",
+      answer:
+        "Define objective first (awareness/leads/sales). Track key metrics like CTR, CPC, conversion rate, CAC, ROAS, and retention. Use attribution carefully and compare against benchmarks + cohort performance.",
+      tags: ["mba", "marketing"],
+    },
+    {
+      question: "How would you do market research for a new city/region?",
+      answer:
+        "Combine secondary research (reports, competitors) + primary research (surveys, interviews, pilots). Estimate market size, buying triggers, pricing sensitivity, and channel reach. Validate assumptions via a small pilot.",
+      tags: ["mba", "marketing"],
+    },
+    {
+      question:
+        "Tell me about a time you influenced someone without authority.",
+      answer:
+        "Use STAR: align on the goal, show data/customer insight, propose options, and get buy-in through communication and follow-ups. Close with measurable result.",
+      tags: ["mba", "marketing", "behavioral"],
+    },
+  ],
+  finance: [
+    {
+      question: "Explain NPV and IRR in simple terms.",
+      answer:
+        "NPV is the value today of future cash flows minus investment, using a discount rate. IRR is the discount rate where NPV becomes zero. Prefer NPV for comparing projects; IRR can be misleading with non-standard cash flows.",
+      tags: ["mba", "finance"],
+    },
+    {
+      question:
+        "What is the difference between revenue, profit, and cash flow?",
+      answer:
+        "Revenue is total sales. Profit is revenue minus expenses (accounting view). Cash flow is actual cash movement; a company can be profitable but still have poor cash flow due to receivables/inventory.",
+      tags: ["mba", "finance"],
+    },
+    {
+      question: "How do you evaluate a company’s financial health?",
+      answer:
+        "Look at profitability (margins), liquidity (current ratio), leverage (debt/equity), efficiency (inventory/receivable days), and cash flow. Compare trends over time and against peers.",
+      tags: ["mba", "finance"],
+    },
+    {
+      question: "Explain budgeting and forecasting.",
+      answer:
+        "Budgeting is planning targets (revenue/cost/cash) for a period. Forecasting updates expectations based on actuals and new information. Good forecasting helps manage risk and resource allocation.",
+      tags: ["mba", "finance"],
+    },
+    {
+      question:
+        "Tell me about a time you worked with numbers/data to make a decision.",
+      answer:
+        "Describe the dataset, what you analyzed (trend/cost/ROI), your recommendation, and the outcome. Mention how you validated assumptions and communicated to stakeholders.",
+      tags: ["mba", "finance", "behavioral"],
+    },
+  ],
+  hr: [
+    {
+      question: "What is your approach to recruitment and selection?",
+      answer:
+        "Start with role clarity (JD + success metrics), source candidates, screen for skills and culture fit, use structured interviews, and close with fair offers. Track quality-of-hire and time-to-fill.",
+      tags: ["mba", "hr"],
+    },
+    {
+      question: "How would you reduce employee attrition?",
+      answer:
+        "Diagnose root causes using exit data and manager feedback, improve onboarding, career paths, recognition, and manager capability. Measure by attrition rate, engagement scores, and internal mobility.",
+      tags: ["mba", "hr"],
+    },
+    {
+      question: "Explain performance management.",
+      answer:
+        "It’s a continuous cycle: set goals, ongoing feedback, coaching, mid-year check-ins, and fair evaluation. Focus on development plans and alignment to business outcomes.",
+      tags: ["mba", "hr"],
+    },
+    {
+      question: "How do you handle a conflict between two employees?",
+      answer:
+        "Listen to both sides, focus on facts and shared goals, mediate possible solutions, agree on behaviors, and follow up. Document if needed and ensure fairness.",
+      tags: ["mba", "hr"],
+    },
+    {
+      question: "What is organizational behavior and why is it important?",
+      answer:
+        "OB studies how people behave in organizations—motivation, teams, leadership, culture. It matters because it directly impacts performance, retention, and change adoption.",
+      tags: ["mba", "hr"],
+    },
+  ],
+  operations: [
+    {
+      question: "How would you improve a slow process in operations?",
+      answer:
+        "Map the process, identify bottlenecks (time, defects, handoffs), prioritize high-impact fixes, implement standard work, and track KPIs like cycle time, defect rate, and throughput.",
+      tags: ["mba", "operations"],
+    },
+    {
+      question: "What is supply chain management?",
+      answer:
+        "It’s managing the flow from suppliers to customers: procurement, production, inventory, logistics, and demand planning. Goal is right product, right time, right cost.",
+      tags: ["mba", "operations"],
+    },
+    {
+      question: "Explain inventory management basics.",
+      answer:
+        "Balance service levels vs holding cost. Use demand forecasting, reorder points, safety stock, and ABC analysis. Reduce stockouts while avoiding excess inventory.",
+      tags: ["mba", "operations"],
+    },
+    {
+      question: "What is quality control and how do you ensure it?",
+      answer:
+        "Define quality standards, measure defects, use root-cause analysis (5 Whys, fishbone), implement preventive actions, and audit continuously. Track DPMO and customer complaints.",
+      tags: ["mba", "operations"],
+    },
+    {
+      question: "Tell me about a time you improved efficiency.",
+      answer:
+        "Use STAR with a metric: baseline time/cost, actions you took (process change, automation, standardization), and the measured improvement.",
+      tags: ["mba", "operations", "behavioral"],
+    },
+  ],
+  "business-analytics": [
+    {
+      question: "How would you use data to solve a business problem?",
+      answer:
+        "Clarify the objective, define KPIs, gather/clean data, analyze patterns, test hypotheses, and recommend actions. Validate with a pilot and monitor impact.",
+      tags: ["mba", "business-analytics"],
+    },
+    {
+      question: "What KPIs would you track for a sales funnel?",
+      answer:
+        "Leads → MQL → SQL → conversion. Track conversion rates, CAC, cycle time, win rate, average deal size, and churn/retention. Segment by channel and cohort.",
+      tags: ["mba", "business-analytics"],
+    },
+    {
+      question: "Explain how you would build a dashboard for leadership.",
+      answer:
+        "Start with decisions leaders need to make, choose 5–8 key KPIs, show trends and drill-downs, define data freshness, and ensure metric definitions are consistent. Keep it simple and actionable.",
+      tags: ["mba", "business-analytics"],
+    },
+    {
+      question: "What is the difference between correlation and causation?",
+      answer:
+        "Correlation means variables move together; causation means one causes the other. To claim causation, you need experiments or strong identification strategies, not just correlation.",
+      tags: ["mba", "business-analytics"],
+    },
+    {
+      question: "How do you ensure data quality?",
+      answer:
+        "Define data ownership, validation rules, monitoring (nulls/outliers), and reconciliation with source systems. Document definitions and create alerts for anomalies.",
+      tags: ["mba", "business-analytics"],
+    },
+  ],
+};
+
+const shuffle = (arr) => {
+  const out = Array.isArray(arr) ? [...arr] : [];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+};
+
+const getMbaQuestionBank = ({ count, specialization } = {}) => {
   const wanted = Math.max(
     1,
-    Math.min(20, Number(count) || MBA_QUESTIONS.length),
+    Math.min(20, Number(count) || MBA_COMMON_QUESTIONS.length),
   );
-  return MBA_QUESTIONS.slice(0, wanted);
+
+  const key = String(specialization || "")
+    .trim()
+    .toLowerCase();
+  const specPool = MBA_SPECIALIZATION_QUESTIONS[key] || [];
+  const pool = shuffle([...MBA_COMMON_QUESTIONS, ...specPool]);
+  return pool.slice(0, wanted);
 };
 
 module.exports = {
   getMbaQuestionBank,
-  MBA_QUESTIONS,
+  MBA_COMMON_QUESTIONS,
+  MBA_SPECIALIZATION_QUESTIONS,
 };

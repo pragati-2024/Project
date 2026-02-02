@@ -35,7 +35,12 @@ const buildEncouragement = ({ score }) => {
   return "No problem — let’s improve. Avoid 1–3 word answers; aim for a short, structured explanation (6–10 lines) with one example.";
 };
 
-const buildStudyResources = ({ track, focusArea, question }) => {
+const buildStudyResources = ({
+  track,
+  focusArea,
+  question,
+  mbaSpecialization,
+}) => {
   const t = String(track || "")
     .trim()
     .toLowerCase();
@@ -43,6 +48,9 @@ const buildStudyResources = ({ track, focusArea, question }) => {
     .trim()
     .toLowerCase();
   const q = String(question || "").trim();
+  const spec = String(mbaSpecialization || "")
+    .trim()
+    .toLowerCase();
 
   const resources = [];
 
@@ -58,6 +66,33 @@ const buildStudyResources = ({ track, focusArea, question }) => {
   }
 
   if (t === "mba") {
+    // One specialization-friendly resource (kept short; we cap to 3 links).
+    if (spec === "marketing") {
+      resources.push({
+        label: "Marketing basics (Segmentation/Positioning)",
+        url: "https://blog.hubspot.com/marketing/segmentation-targeting-positioning",
+      });
+    } else if (spec === "finance") {
+      resources.push({
+        label: "Finance basics (NPV/IRR, statements)",
+        url: "https://www.investopedia.com/terms/n/npv.asp",
+      });
+    } else if (spec === "hr") {
+      resources.push({
+        label: "HR basics (recruitment, performance)",
+        url: "https://www.shrm.org/topics-tools",
+      });
+    } else if (spec === "operations") {
+      resources.push({
+        label: "Operations/Supply chain basics",
+        url: "https://www.investopedia.com/terms/s/supplychain.asp",
+      });
+    } else if (spec === "business-analytics") {
+      resources.push({
+        label: "Business analytics (Power BI intro)",
+        url: "https://learn.microsoft.com/power-bi/fundamentals/power-bi-overview",
+      });
+    }
     resources.push({
       label: "MBA Interview Prep (Goals / Why MBA / Leadership)",
       url: "https://www.mba.com/explore-programs/mba-programs/mba-interviews",
@@ -268,23 +303,32 @@ router.post("/questions", requireAuth, async (req, res) => {
     focusArea,
     count,
     track,
+    mbaSpecialization,
   } = req.body || {};
-
-  if (!jobRole || !level || !focusArea) {
-    return res
-      .status(400)
-      .json({ message: "jobRole, level, focusArea are required" });
-  }
 
   const normalizedTrack = String(track || "")
     .trim()
     .toLowerCase();
   if (normalizedTrack === "mba") {
+    if (!jobRole || !level) {
+      return res
+        .status(400)
+        .json({ message: "jobRole and level are required" });
+    }
     const safeCount = Number.isFinite(Number(count)) ? Number(count) : 10;
     return res.json({
       source: "mba-bank",
-      questions: getMbaQuestionBank({ count: safeCount }),
+      questions: getMbaQuestionBank({
+        count: safeCount,
+        specialization: mbaSpecialization,
+      }),
     });
+  }
+
+  if (!jobRole || !level || !focusArea) {
+    return res
+      .status(400)
+      .json({ message: "jobRole, level, focusArea are required" });
   }
 
   // Company-specific question banks should apply across modes (video/chat/voice).
@@ -314,6 +358,7 @@ router.post("/questions", requireAuth, async (req, res) => {
     focusArea,
     count,
     track,
+    mbaSpecialization,
   });
 
   try {
@@ -360,14 +405,23 @@ router.post("/check-answer", requireAuth, async (req, res) => {
     level,
     focusArea,
     track,
+    mbaSpecialization,
     question,
     answer,
   } = req.body || {};
 
-  if (!jobRole || !level || !focusArea) {
-    return res
-      .status(400)
-      .json({ message: "jobRole, level, focusArea are required" });
+  const normalizedTrack = String(track || "")
+    .trim()
+    .toLowerCase();
+  const effectiveFocusArea =
+    normalizedTrack === "mba" ? String(focusArea || "mba") : focusArea;
+
+  if (
+    !jobRole ||
+    !level ||
+    (!effectiveFocusArea && normalizedTrack !== "mba")
+  ) {
+    return res.status(400).json({ message: "jobRole and level are required" });
   }
   if (!String(question || "").trim()) {
     return res.status(400).json({ message: "question is required" });
@@ -378,7 +432,12 @@ router.post("/check-answer", requireAuth, async (req, res) => {
 
   const quality = analyzeAnswerQuality(answer);
   if (quality.lowEffort) {
-    const resources = buildStudyResources({ track, focusArea, question });
+    const resources = buildStudyResources({
+      track,
+      focusArea: effectiveFocusArea,
+      question,
+      mbaSpecialization,
+    });
     return res.json({
       source: "rule",
       verdict: "Weak",
@@ -404,8 +463,9 @@ router.post("/check-answer", requireAuth, async (req, res) => {
     company,
     jobRole,
     level,
-    focusArea,
+    focusArea: effectiveFocusArea,
     track,
+    mbaSpecialization,
     question: String(question).slice(0, 800),
     answer: String(answer).slice(0, 4000),
   });
@@ -508,7 +568,12 @@ router.post("/check-answer", requireAuth, async (req, res) => {
       if (structured) {
         // Safety net: if an answer is low-effort, force 0 even if the model returns higher.
         const guardedScore = quality.lowEffort ? 0 : structured.score;
-        const resources = buildStudyResources({ track, focusArea, question });
+        const resources = buildStudyResources({
+          track,
+          focusArea: effectiveFocusArea,
+          question,
+          mbaSpecialization,
+        });
         return res.json({
           source: "ai",
           ...structured,
@@ -527,7 +592,12 @@ router.post("/check-answer", requireAuth, async (req, res) => {
         });
       }
 
-      const resources = buildStudyResources({ track, focusArea, question });
+      const resources = buildStudyResources({
+        track,
+        focusArea: effectiveFocusArea,
+        question,
+        mbaSpecialization,
+      });
       return res.json({
         source: "ai",
         feedback: ai.text,
@@ -540,7 +610,12 @@ router.post("/check-answer", requireAuth, async (req, res) => {
       qa: [{ question: String(question || ""), answer: String(answer || "") }],
     });
     const verdict = score >= 8 ? "Strong" : score >= 5 ? "Okay" : "Weak";
-    const resources = buildStudyResources({ track, focusArea, question });
+    const resources = buildStudyResources({
+      track,
+      focusArea: effectiveFocusArea,
+      question,
+      mbaSpecialization,
+    });
     return res.json({
       source: "fallback",
       feedback,
@@ -555,7 +630,12 @@ router.post("/check-answer", requireAuth, async (req, res) => {
       qa: [{ question: String(question || ""), answer: String(answer || "") }],
     });
     const verdict = score >= 8 ? "Strong" : score >= 5 ? "Okay" : "Weak";
-    const resources = buildStudyResources({ track, focusArea, question });
+    const resources = buildStudyResources({
+      track,
+      focusArea: effectiveFocusArea,
+      question,
+      mbaSpecialization,
+    });
     return res.json({
       source: "fallback",
       feedback,
@@ -575,15 +655,24 @@ router.post("/feedback", requireAuth, async (req, res) => {
     level,
     focusArea,
     track,
+    mbaSpecialization,
     questions,
     answers,
     qa,
   } = req.body || {};
 
-  if (!jobRole || !level || !focusArea) {
-    return res
-      .status(400)
-      .json({ message: "jobRole, level, focusArea are required" });
+  const normalizedTrack = String(track || "")
+    .trim()
+    .toLowerCase();
+  const effectiveFocusArea =
+    normalizedTrack === "mba" ? String(focusArea || "mba") : focusArea;
+
+  if (
+    !jobRole ||
+    !level ||
+    (!effectiveFocusArea && normalizedTrack !== "mba")
+  ) {
+    return res.status(400).json({ message: "jobRole and level are required" });
   }
 
   const pairs = Array.isArray(qa)
@@ -629,9 +718,10 @@ router.post("/feedback", requireAuth, async (req, res) => {
     company,
     jobRole,
     level,
-    focusArea,
+    focusArea: effectiveFocusArea,
     qa: pairs,
     track,
+    mbaSpecialization,
   });
 
   try {
@@ -694,6 +784,7 @@ router.post("/history", requireAuth, async (req, res) => {
       level = "",
       focusArea = "",
       track = "",
+      mbaSpecialization = "",
       text = "",
       score,
     } = req.body || {};
@@ -717,6 +808,7 @@ router.post("/history", requireAuth, async (req, res) => {
       level: String(level || "").slice(0, 30),
       focusArea: String(focusArea || "").slice(0, 40),
       track: String(track || "").slice(0, 20),
+      mbaSpecialization: String(mbaSpecialization || "").slice(0, 40),
       text: String(text || "").slice(0, 20000),
       score: typeof score === "number" ? score : undefined,
     });

@@ -5,11 +5,17 @@ const buildQuestionPrompt = ({
   focusArea,
   count,
   track,
+  mbaSpecialization,
 }) => {
   const safeCount = Number.isFinite(count) ? count : 5;
   const isPlacement = String(level || "").toLowerCase() === "entry";
   const t = String(track || "").toLowerCase();
-  return `You are a senior technical interviewer.
+  const spec = String(mbaSpecialization || "").trim();
+  const persona =
+    t === "mba"
+      ? "You are a senior MBA interview coach."
+      : "You are a senior technical interviewer.";
+  return `${persona}
 
 Task: Generate exactly ${safeCount} interview questions.
 
@@ -18,6 +24,7 @@ Context:
 - Level: ${level}
 - Focus area: ${focusArea}
 - Candidate track (optional): ${t || "N/A"}
+- MBA specialization (optional): ${spec || "N/A"}
 - Company (optional): ${company || "N/A"}
 
 Goal:
@@ -26,7 +33,7 @@ Goal:
 Guidance:
 - Include a balanced mix based on focus area.
 - If focus area is "technical", prioritize: DSA basics, OOP, DBMS, OS, networking, debugging, projects.
-- If candidate track is "mba", avoid DSA/programming questions and ask MBA admission-style questions (goals, leadership, teamwork, ethics, motivation, school fit).
+- If candidate track is "mba", avoid DSA/programming questions and ask MBA interview questions aligned to the specialization (marketing/finance/hr/operations/analytics) + common MBA topics (goals, leadership, teamwork, ethics, motivation).
 - If focus area is "behavioral", prioritize: teamwork, conflict, ownership, communication, STAR answers.
 - If focus area is "system-design", prioritize: scalable design, trade-offs, APIs, database choices.
 - Keep each question clear and actionable.
@@ -46,6 +53,7 @@ const buildFeedbackPrompt = ({
   focusArea,
   qa,
   track,
+  mbaSpecialization,
 }) => {
   const qaText = (qa || [])
     .map((item, idx) => {
@@ -64,6 +72,7 @@ Context:
 - Level: ${level}
 - Focus area: ${focusArea}
 - Candidate track (optional): ${String(track || "").trim() || "N/A"}
+- MBA specialization (optional): ${String(mbaSpecialization || "").trim() || "N/A"}
 - Company (optional): ${company || "N/A"}
 
 Candidate responses:
@@ -92,6 +101,7 @@ const buildAnswerCheckPrompt = ({
   level,
   focusArea,
   track,
+  mbaSpecialization,
   question,
   answer,
 }) => {
@@ -107,6 +117,7 @@ Context:
 - Level: ${level}
 - Focus area: ${focusArea}
 - Candidate track (optional): ${String(track || "").trim() || "N/A"}
+- MBA specialization (optional): ${String(mbaSpecialization || "").trim() || "N/A"}
 - Company (optional): ${company || "N/A"}
 
 Question:
