@@ -2,20 +2,31 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar.jsx';
 
+import htmlIcon from '../assets/html.png';
+import cssIcon from '../assets/css-3.png';
+import jsIcon from '../assets/js.png';
+import reactIcon from '../assets/react.png';
+import nodeIcon from '../assets/node-js.png';
+import pythonIcon from '../assets/python.png';
+import devopsIcon from '../assets/devops.png';
+import aiIcon from '../assets/ai.png';
+import fireIcon from '../assets/fire.png';
+import gdIcon from '../assets/1F4CA_color.png';
+
 const questionData = [
-  { id: 1, name: 'HTML Notes', description: 'View Interview Questions', category: 'Frontend', image: '../assets/html.png', path: 'html' },
-  { id: 2, name: 'CSS Notes', description: 'View Interview Questions', category: 'Frontend', image: '../assets/css-3.png', path: 'css' },
-  { id: 3, name: 'JavaScript Notes', description: 'View Interview Questions', category: 'Frontend', image: '../assets/js.png', path: 'javascript' },
-  { id: 4, name: 'React Notes', description: 'View Interview Questions', category: 'Frontend', image: '../assets/react.png', path: 'react' },
-  { id: 5, name: 'Node.js Notes', description: 'View Interview Questions', category: 'Backend', image: '../assets/node-js.png', path: 'node' },
-  { id: 9, name: 'Express.js Notes', description: 'View Interview Questions', category: 'Backend', image: '../assets/node-js.png', path: 'express' },
-  { id: 13, name: 'DSA Using Java', description: 'Core DSA + code (Interview)', category: 'Backend', image: '../assets/node-js.png', path: 'dsa-java' },
-  { id: 6, name: 'Python Notes', description: 'View Interview Questions', category: 'Backend', image: '../assets/python.png', path: 'python' },
-  { id: 7, name: 'DevOps Notes', description: 'View Interview Questions', category: 'DevOps', image: '../assets/devops.png', path: 'devops' },
-  { id: 8, name: 'AI/ML Notes', description: 'View Interview Questions', category: 'AI/ML', image: '../assets/ai.png', path: 'ai-ml' },
-  { id: 10, name: 'AI Integration Notes', description: 'How to integrate AI in apps', category: 'AI/ML', image: '../assets/ai.png', path: 'ai-integration' },
-  { id: 11, name: 'HR Round', description: 'Most common HR questions', category: 'HR/GD', image: '../assets/fire.png', path: 'hr' },
-  { id: 12, name: 'GD Rounds', description: 'Group Discussion tips + topics', category: 'HR/GD', image: '../assets/1F4CA_color.png', path: 'gd-rounds' },
+  { id: 1, name: 'HTML Notes', description: 'View Interview Questions', category: 'Frontend', image: htmlIcon, path: 'html' },
+  { id: 2, name: 'CSS Notes', description: 'View Interview Questions', category: 'Frontend', image: cssIcon, path: 'css' },
+  { id: 3, name: 'JavaScript Notes', description: 'View Interview Questions', category: 'Frontend', image: jsIcon, path: 'javascript' },
+  { id: 4, name: 'React Notes', description: 'View Interview Questions', category: 'Frontend', image: reactIcon, path: 'react' },
+  { id: 5, name: 'Node.js Notes', description: 'View Interview Questions', category: 'Backend', image: nodeIcon, path: 'node' },
+  { id: 9, name: 'Express.js Notes', description: 'View Interview Questions', category: 'Backend', image: nodeIcon, path: 'express' },
+  { id: 13, name: 'DSA Using Java', description: 'Core DSA + code (Interview)', category: 'Backend', image: nodeIcon, path: 'dsa-java' },
+  { id: 6, name: 'Python Notes', description: 'View Interview Questions', category: 'Backend', image: pythonIcon, path: 'python' },
+  { id: 7, name: 'DevOps Notes', description: 'View Interview Questions', category: 'DevOps', image: devopsIcon, path: 'devops' },
+  { id: 8, name: 'AI/ML Notes', description: 'View Interview Questions', category: 'AI/ML', image: aiIcon, path: 'ai-ml' },
+  { id: 10, name: 'AI Integration Notes', description: 'How to integrate AI in apps', category: 'AI/ML', image: aiIcon, path: 'ai-integration' },
+  { id: 11, name: 'HR Round', description: 'Most common HR questions', category: 'HR/GD', image: fireIcon, path: 'hr' },
+  { id: 12, name: 'GD Rounds', description: 'Group Discussion tips + topics', category: 'HR/GD', image: gdIcon, path: 'gd-rounds' },
 ];
 
 const categories = ['Frontend', 'Backend', 'DevOps', 'AI/ML', 'HR/GD'];
@@ -90,7 +101,7 @@ const QuestionBank = () => {
             <div className="card-scroll-container">
               {items.map((item) => (
                 <div key={item.id} className="card-item bg-purple-600 hover:bg-purple-500 transition rounded-2xl shadow-lg p-6 flex flex-col items-center text-center">
-                  <img src={new URL(item.image, import.meta.url).href} alt={item.name} className="w-20 h-20 mb-4" />
+                  <img src={item.image} alt={item.name} className="w-20 h-20 mb-4" />
                   <h2 className="text-xl font-bold mb-2">{item.name}</h2>
                   <p className="text-purple-200 mb-4">{item.description}</p>
                   <button
