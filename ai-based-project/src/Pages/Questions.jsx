@@ -5,7 +5,10 @@ import Sidebar from "../components/Sidebar.jsx";
 const Questions = () => {
   const { topic } = useParams();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(min-width: 768px)").matches;
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [questions, setQuestions] = useState([]);

@@ -13,7 +13,10 @@ const Profile = () => {
     Email: '',
     profileImage: ''
   });
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(min-width: 768px)').matches;
+  });
   const [avatarError, setAvatarError] = useState(false);
   const [password, setPassword] = useState('');
   const [isSaving, setIsSaving] = useState(false);

@@ -15,6 +15,22 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
   return (
     <>
+    {/* Mobile open button (when sidebar is closed) */}
+    {!sidebarOpen && (
+      <button
+        type="button"
+        onClick={() => setSidebarOpen(true)}
+        className="fixed md:hidden z-30 left-3 rounded-lg px-3 py-2 bg-white/80 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 shadow-lg backdrop-blur text-slate-800 dark:text-white"
+        style={{ top: 'calc(var(--header-height) + 12px)' }}
+        aria-label="Open sidebar"
+      >
+        <span className="inline-flex items-center gap-2">
+          <FiMenu size={18} />
+          <span className="text-sm font-semibold">Menu</span>
+        </span>
+      </button>
+    )}
+
     {/* Mobile overlay */}
     {sidebarOpen && (
       <div

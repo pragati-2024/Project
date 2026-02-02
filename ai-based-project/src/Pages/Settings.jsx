@@ -32,7 +32,10 @@ function saveSettings(settings) {
 }
 
 const Settings = () => {
-   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(min-width: 768px)').matches;
+  });
    const { theme, setTheme, resolvedTheme } = useTheme();
    const [settings, setSettings] = useState(() => loadSettings());
    const [message, setMessage] = useState('');
@@ -143,7 +146,7 @@ const Settings = () => {
    };
 
   return (
-    <div className="flex min-h-screen bg-transparent text-slate-900 dark:bg-gray-900 dark:text-white">
+    <div className="flex min-h-screen bg-transparent text-slate-900 dark:bg-gray-900 dark:text-white radial-background">
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <div className={`flex-1 p-4 sm:p-6 md:p-8 transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}>
       <div className="p-4 sm:p-6 md:p-8">
