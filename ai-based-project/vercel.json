@@ -14,6 +14,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://project-emqa.onrender.com/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
