@@ -15,7 +15,10 @@ const {
   evaluateFallback,
 } = require("../ai/fallback");
 const { getQuestionBank } = require("../ai/questionBank");
-const { getMbaQuestionBank } = require("../ai/mbaQuestionBank");
+const {
+  getMbaQuestionBank,
+  findMbaAnswerByQuestion,
+} = require("../ai/mbaQuestionBank");
 const { analyzeAnswerQuality } = require("../ai/answerQuality");
 const questionRoutes = require("./QuestionRoutes");
 
@@ -114,6 +117,250 @@ const buildStudyResources = ({
 
   // Cap to keep payload small.
   return resources.slice(0, 3);
+};
+
+const isLikelyTemplateAnswer = (text) => {
+  const t = String(text || "").trim();
+  if (!t) return true;
+  const lower = t.toLowerCase();
+  if (t.length < 80) return true;
+  if (lower.includes("___")) return true;
+  if (
+    lower.includes("1-line") ||
+    lower.includes("2–3") ||
+    lower.includes("2-3")
+  )
+    return true;
+  if (lower.includes("supporting points") && lower.includes("example"))
+    return true;
+  return false;
+};
+
+const hydrateMbaTemplate = ({ template, mbaSpecialization }) => {
+  const spec = String(mbaSpecialization || "")
+    .trim()
+    .toLowerCase();
+
+  const replacementsBySpec = {
+    marketing: [
+      "an MBA candidate specializing in Marketing",
+      "consumer insights and digital marketing",
+      "a go-to-market project and a campaign analysis",
+      "improving conversion rates and customer engagement",
+      "move into a brand/marketing role",
+      "communication",
+      "data-driven decision making",
+      "a clear target segment",
+      "positioning",
+      "measurable KPIs",
+    ],
+    finance: [
+      "an MBA candidate specializing in Finance",
+      "financial analysis and budgeting",
+      "a budgeting/forecasting assignment and a valuation case",
+      "improving cost visibility and decision quality",
+      "move into a finance analyst/FP&A role",
+      "structured thinking",
+      "attention to detail",
+      "cash flow focus",
+      "risk awareness",
+      "stakeholder communication",
+    ],
+    hr: [
+      "an MBA candidate specializing in HR",
+      "recruitment, performance management, and employee engagement",
+      "a hiring workflow improvement and a policy research project",
+      "better candidate experience and team productivity",
+      "move into an HR generalist/talent acquisition role",
+      "empathy",
+      "process discipline",
+      "structured interviews",
+      "clear role expectations",
+      "fair and consistent evaluation",
+    ],
+    operations: [
+      "an MBA candidate specializing in Operations",
+      "process improvement and supply chain fundamentals",
+      "a process mapping project and a capacity planning case",
+      "reducing cycle time and defects",
+      "move into an operations/production role",
+      "ownership",
+      "problem solving",
+      "standard work",
+      "root-cause analysis",
+      "continuous improvement",
+    ],
+    "business-analytics": [
+      "an MBA candidate specializing in Business Analytics",
+      "data analysis and dashboarding",
+      "a KPI dashboard and a funnel analysis",
+      "turning data into actionable recommendations",
+      "move into a business analyst role",
+      "analytical thinking",
+      "communication",
+      "clear KPI definition",
+      "data validation",
+      "impact measurement",
+    ],
+  };
+
+  const replacements = replacementsBySpec[spec] || [
+    "an MBA candidate",
+    "business fundamentals",
+    "a couple of academic/live projects",
+    "measurable impact",
+    "a business role",
+    "communication",
+    "problem solving",
+  ];
+
+  let i = 0;
+  return String(template || "").replace(/___/g, () => {
+    const next = replacements[i] || replacements[replacements.length - 1] || "";
+    i += 1;
+    return next;
+  });
+};
+
+const buildSampleAnswer = ({
+  track,
+  focusArea,
+  question,
+  mbaSpecialization,
+}) => {
+  const t = String(track || "")
+    .trim()
+    .toLowerCase();
+  const fa = String(focusArea || "")
+    .trim()
+    .toLowerCase();
+  const q = String(question || "").trim();
+  const ql = q.toLowerCase();
+
+  if (t === "mba") {
+    // First try: curated bank (if it matches exactly), then hydrate blanks.
+    const bankTemplate = findMbaAnswerByQuestion({
+      question: q,
+      specialization: mbaSpecialization,
+    });
+    if (bankTemplate) {
+      const hydrated = hydrateMbaTemplate({
+        template: bankTemplate,
+        mbaSpecialization,
+      });
+      if (!isLikelyTemplateAnswer(hydrated)) return hydrated.trim();
+    }
+
+    if (ql.includes("tell me about yourself")) {
+      const spec = String(mbaSpecialization || "")
+        .trim()
+        .toLowerCase();
+      const focus =
+        spec === "marketing"
+          ? "Marketing"
+          : spec === "finance"
+            ? "Finance"
+            : spec === "hr"
+              ? "HR"
+              : spec === "operations"
+                ? "Operations"
+                : spec === "business-analytics"
+                  ? "Business Analytics"
+                  : "Business";
+      return (
+        `I’m an MBA candidate specializing in ${focus}. I enjoy working on problems where I can combine structured thinking with clear communication.\n\n` +
+        `Recently, I worked on a project where we analyzed a real business scenario, identified the key drivers, and proposed a practical plan with measurable KPIs. I’m comfortable collaborating with teams, presenting insights, and taking ownership of outcomes.\n\n` +
+        `I’m now looking for an entry-level role where I can learn fast, contribute to execution, and grow into a role that drives business impact.`
+      ).trim();
+    }
+
+    if (ql.includes("why") && ql.includes("mba")) {
+      return (
+        "I want to pursue an MBA to build a stronger business foundation and become confident in making cross-functional decisions. I’ve seen that good outcomes need a mix of strategy, numbers, and people skills.\n\n" +
+        "An MBA gives me structured learning through cases and projects, exposure to different perspectives, and opportunities to practice leadership. In the short term, I want to start in a role where I can work on real problems, learn from senior stakeholders, and deliver measurable results."
+      ).trim();
+    }
+
+    if (ql.includes("strength") && ql.includes("weakness")) {
+      return (
+        "One of my strengths is structured problem solving. For example, in a recent project I broke a vague problem into clear steps, aligned the team on priorities, and delivered a solution on time.\n\n" +
+        "A weakness I’ve been working on is being overly detail-oriented, which sometimes slows me down. To improve, I time-box analysis, define ‘good enough’ criteria early, and share quick drafts to get feedback sooner."
+      ).trim();
+    }
+
+    if (ql.includes("conflict") || ql.includes("disagree")) {
+      return (
+        "When there’s conflict in a team, I first listen to understand both viewpoints and clarify the shared goal. Then I separate people from the problem and focus on facts, constraints, and what success looks like.\n\n" +
+        "I propose 2–3 options, align on a decision with the team/manager, and confirm the next steps in writing so we don’t repeat the same issue. I also follow up after execution to make sure the relationship stays positive."
+      ).trim();
+    }
+
+    // Specialization-aware default sample.
+    const spec = String(mbaSpecialization || "")
+      .trim()
+      .toLowerCase();
+    if (spec === "marketing") {
+      return (
+        "I would start by clearly defining the target customer segment and the problem we’re solving. Then I’d craft a positioning statement and value proposition that is easy to communicate.\n\n" +
+        "Next, I’d choose the right channels (digital, partnerships, retail, etc.), set a realistic budget, and define success metrics like CAC, conversion rate, retention, and ROAS. Finally, I’d run small experiments (A/B tests), learn quickly, and scale what works."
+      ).trim();
+    }
+    if (spec === "finance") {
+      return (
+        "I would approach it by identifying the key financial drivers: revenue, costs, working capital, and cash flow. Then I’d build a simple model to compare scenarios and understand sensitivity to assumptions.\n\n" +
+        "I’d communicate the recommendation using NPV/ROI where relevant, highlight risks, and suggest a practical action plan—what to do now, what to monitor, and what would change the decision."
+      ).trim();
+    }
+    if (spec === "hr") {
+      return (
+        "I would start with role clarity—what success looks like in 90 days—and align the JD, screening criteria, and interview questions to that.\n\n" +
+        "I’d use structured interviews to reduce bias, track metrics like time-to-fill and quality-of-hire, and continuously improve the process using feedback from candidates and hiring managers."
+      ).trim();
+    }
+    if (spec === "operations") {
+      return (
+        "I would map the current process end-to-end, measure where time or defects happen, and identify the biggest bottleneck.\n\n" +
+        "Then I’d prioritize one or two high-impact fixes (standard work, removing handoffs, improving layout, basic automation), and track KPIs like cycle time, throughput, and defect rate to confirm the improvement."
+      ).trim();
+    }
+    if (spec === "business-analytics") {
+      return (
+        "I would begin by clarifying the business objective and defining the KPIs that represent success. Then I’d gather the relevant data sources, clean/validate the data, and explore patterns to find the key drivers.\n\n" +
+        "After that, I’d test hypotheses (segments/cohorts), build a simple dashboard for visibility, and recommend actions with expected impact. I’d validate with a small pilot and monitor results over time."
+      ).trim();
+    }
+
+    return (
+      "I would answer this by (1) clarifying the goal, (2) explaining my approach in 2–3 steps, and (3) giving one concrete example of how I would apply it.\n\n" +
+      "I would also mention what I would measure to confirm success and how I would communicate progress to stakeholders."
+    ).trim();
+  }
+
+  // Non-MBA (tech / general)
+  if (fa === "behavioral") {
+    return (
+      "Situation: Briefly set the context and why it mattered.\n" +
+      "Task: State your responsibility and goal.\n" +
+      "Action: Explain 2–3 key actions you took (communication, prioritization, execution).\n" +
+      "Result: Give a measurable outcome (time saved, quality, user impact) and what you learned."
+    ).trim();
+  }
+
+  if (ql.includes("time complexity") || ql.includes("big o")) {
+    return (
+      "Time complexity describes how the runtime of an algorithm grows as the input size increases, usually expressed with Big-O notation.\n\n" +
+      "For example, a single loop over n items is O(n), a nested loop over n items is typically O(n^2), and binary search is O(log n) because it halves the search space each step. When comparing approaches, Big-O helps us understand scalability and trade-offs."
+    ).trim();
+  }
+
+  if (fa === "system-design") {
+    return (
+      "I would start by clarifying requirements (users, QPS, latency, data size, core features). Then I’d propose a high-level architecture with components, data model, and APIs.\n\n" +
+      "Next I’d discuss scaling (caching, load balancing, sharding), reliability (retries, queues, rate limits), and trade-offs. Finally, I’d outline monitoring and failure scenarios."
+    ).trim();
+  }
+
+  return "I would answer by defining the concept, explaining how it works in simple terms, and then giving a small example. Finally, I’d mention one edge case or trade-off.".trim();
 };
 
 const getQuestionText = (item) => {
@@ -438,6 +685,12 @@ router.post("/check-answer", requireAuth, async (req, res) => {
       question,
       mbaSpecialization,
     });
+    const improvedAnswer = buildSampleAnswer({
+      track,
+      focusArea: effectiveFocusArea,
+      question,
+      mbaSpecialization,
+    });
     return res.json({
       source: "rule",
       verdict: "Weak",
@@ -450,8 +703,7 @@ router.post("/check-answer", requireAuth, async (req, res) => {
         "Add 1 example or evidence (project, situation, metric).",
       ],
       keyMissing: ["Basic explanation", "Example / detail"],
-      improvedAnswer:
-        "Give a 1-line definition, then 2–3 supporting points, and one concrete example.",
+      improvedAnswer,
       oneLinerTip: "Avoid 1–3 word answers; explain in 6–10 lines.",
       feedback:
         "Verdict: Weak\nScore: 0/10\n\nWhat to improve:\n- Answer is too short/keyword-only.\n- Add explanation + example.",
@@ -574,9 +826,27 @@ router.post("/check-answer", requireAuth, async (req, res) => {
           question,
           mbaSpecialization,
         });
+
+        const sampleIfNeeded = buildSampleAnswer({
+          track,
+          focusArea: effectiveFocusArea,
+          question,
+          mbaSpecialization,
+        });
+        const useSample = isLikelyTemplateAnswer(structured.improvedAnswer);
+        const patched = useSample
+          ? {
+              ...structured,
+              improvedAnswer: sampleIfNeeded,
+              feedback: String(structured.feedback || "").trim()
+                ? `${String(structured.feedback || "").trim()}\n\nSample strong answer:\n${sampleIfNeeded}`
+                : `Sample strong answer:\n${sampleIfNeeded}`,
+            }
+          : structured;
+
         return res.json({
           source: "ai",
-          ...structured,
+          ...patched,
           ...(typeof guardedScore === "number" ? { score: guardedScore } : {}),
           ...(quality.lowEffort
             ? { verdict: "Weak", blockedBy: quality.reason }
@@ -623,6 +893,12 @@ router.post("/check-answer", requireAuth, async (req, res) => {
       verdict,
       encouragement: buildEncouragement({ score }),
       resources,
+      improvedAnswer: buildSampleAnswer({
+        track,
+        focusArea: effectiveFocusArea,
+        question,
+        mbaSpecialization,
+      }),
       warning: ai.ok ? undefined : ai.error,
     });
   } catch (err) {
@@ -643,6 +919,12 @@ router.post("/check-answer", requireAuth, async (req, res) => {
       verdict,
       encouragement: buildEncouragement({ score }),
       resources,
+      improvedAnswer: buildSampleAnswer({
+        track,
+        focusArea: effectiveFocusArea,
+        question,
+        mbaSpecialization,
+      }),
       warning: err.message,
     });
   }
@@ -711,7 +993,20 @@ router.post("/feedback", requireAuth, async (req, res) => {
       "Next Steps:",
       "- Practice expanding each answer to at least 80–150 characters.",
     ].join("\n");
-    return res.json({ source: "rule", feedback, score: 0 });
+
+    const resources = buildStudyResources({
+      track,
+      focusArea: effectiveFocusArea,
+      question: pairs?.[0]?.question || "",
+      mbaSpecialization,
+    });
+    return res.json({
+      source: "rule",
+      feedback,
+      score: 0,
+      encouragement: buildEncouragement({ score: 0 }),
+      resources,
+    });
   }
 
   const prompt = buildFeedbackPrompt({
@@ -731,22 +1026,51 @@ router.post("/feedback", requireAuth, async (req, res) => {
       maxOutputTokens: 1200,
     });
     if (ai.ok && ai.text) {
-      return res.json({ source: "ai", feedback: ai.text });
+      const { score } = evaluateFallback({ qa: pairs });
+      const resources = buildStudyResources({
+        track,
+        focusArea: effectiveFocusArea,
+        question: pairs?.[0]?.question || "",
+        mbaSpecialization,
+      });
+      return res.json({
+        source: "ai",
+        feedback: ai.text,
+        score,
+        encouragement: buildEncouragement({ score }),
+        resources,
+      });
     }
 
     const { score, feedback } = evaluateFallback({ qa: pairs });
+    const resources = buildStudyResources({
+      track,
+      focusArea: effectiveFocusArea,
+      question: pairs?.[0]?.question || "",
+      mbaSpecialization,
+    });
     return res.json({
       source: "fallback",
       feedback,
       score,
+      encouragement: buildEncouragement({ score }),
+      resources,
       warning: ai.ok ? undefined : ai.error,
     });
   } catch (err) {
     const { score, feedback } = evaluateFallback({ qa: pairs });
+    const resources = buildStudyResources({
+      track,
+      focusArea: effectiveFocusArea,
+      question: pairs?.[0]?.question || "",
+      mbaSpecialization,
+    });
     return res.json({
       source: "fallback",
       feedback,
       score,
+      encouragement: buildEncouragement({ score }),
+      resources,
       warning: err.message,
     });
   }

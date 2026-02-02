@@ -29,9 +29,39 @@ This repository contains a full-stack mock interview platform.
 3. Interview flow:
    - `/api/interview/questions` generates placement-style questions (Gemini if configured, fallback otherwise)
    - User answers (typed or voice-to-text)
-   - `/api/interview/feedback` returns score + strengths + improvements + communication tips
+
+- `/api/interview/check-answer` returns instant per-question feedback + score + a full sample improved answer
+- `/api/interview/feedback` returns score + strengths + improvements + communication tips
+
 4. Question bank flow:
    - `/api/questions/:topic` returns curated questions per topic
+
+## Tracks (Tech vs MBA)
+
+Interview endpoints support a `track` field:
+
+- `track: "tech"` (default): technical / behavioral / system-design
+- `track: "mba"`: MBA-style questions only (no DSA/stack/array questions)
+
+### MBA Specialization
+
+When `track` is `"mba"`, you can optionally pass:
+
+- `mbaSpecialization`: `"marketing" | "finance" | "hr" | "operations" | "business-analytics"`
+
+This helps the app generate MBA questions and resources aligned to the specialization.
+
+Example payload for MBA questions:
+
+```json
+{
+  "track": "mba",
+  "mbaSpecialization": "marketing",
+  "jobRole": "Management Trainee",
+  "level": "Fresher",
+  "count": 10
+}
+```
 
 ## Access Control (Login Required)
 
@@ -108,3 +138,9 @@ Backend serves `ai-based-project/dist` automatically in production mode.
 ## UI Notes
 
 - Social icons are rendered via `react-icons` (Font Awesome CDN is not required).
+
+## Scoring & Feedback Notes
+
+- Very short / keyword-only answers are treated as low-effort and scored strictly (0/10).
+- `/api/interview/check-answer` returns `encouragement`, `resources` (links), and `improvedAnswer` (a full sample strong answer).
+- `/api/interview/feedback` also returns `score` and may include `encouragement` + `resources`.

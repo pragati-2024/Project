@@ -304,8 +304,29 @@ const getMbaQuestionBank = ({ count, specialization } = {}) => {
   return pool.slice(0, wanted);
 };
 
+const normalizeQuestion = (q) =>
+  String(q || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+
+const findMbaAnswerByQuestion = ({ question, specialization } = {}) => {
+  const q = normalizeQuestion(question);
+  if (!q) return null;
+
+  const key = String(specialization || "")
+    .trim()
+    .toLowerCase();
+  const specPool = MBA_SPECIALIZATION_QUESTIONS[key] || [];
+
+  const pool = [...MBA_COMMON_QUESTIONS, ...specPool];
+  const hit = pool.find((item) => normalizeQuestion(item?.question) === q);
+  return hit && hit.answer ? String(hit.answer) : null;
+};
+
 module.exports = {
   getMbaQuestionBank,
+  findMbaAnswerByQuestion,
   MBA_COMMON_QUESTIONS,
   MBA_SPECIALIZATION_QUESTIONS,
 };
